@@ -1,0 +1,28 @@
+#header {
+  position: relative;
+    height: 80px;
+    width: 100%;
+    min-width: 1000px;
+    background-color: #1d365d;
+    text-align: center;
+  }
+  #header ul.wrapper {
+    display: inline-block;
+    width: 970px;
+    height: 100%;
+  }
+  #header ul.wrapper li {
+    float: left;
+    line-height: 80px;
+    font-size: 20px;
+    width: 80px;
+    color: #b9c8e0;
+    font-family: "Oxygen", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 0 20px;
+    cursor: pointer;
+  }
+  #header ul.wrapper li:hover {
+    background-color: #b9c8e0;
+    color: #fff;
+  }
+  

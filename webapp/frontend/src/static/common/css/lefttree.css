@@ -1,0 +1,66 @@
+#lefttree {
+    position: relative;
+    left: 100px;
+    top: 10px;
+    width: 300px;
+}
+
+#lefttree .sidebar-item {
+    font-size: 18px;
+}
+
+#lefttree .sidebar-item {
+    cursor: pointer;
+}
+#lefttree .sidebar-item .technology-title {
+    font-size: 18px;
+}
+#lefttree .sidebar-item .icon-chevron-right {
+    display: inline-block;
+    color: #1D78C1;
+}
+
+#lefttree .sidebar-item .icon-chevron-right.rotate90{
+    transform: rotate(90deg);
+    animation: move1 0.1s linear;
+}
+#lefttree .sidebar-item .icon-chevron-right.rotate0{
+    transform: rotate(0deg);
+    animation: move2 0.1s linear;
+}
+@keyframes move1 {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+@keyframes move2 {
+    0% {
+        transform: rotate(90deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+#lefttree .sidebar-item span {}
+
+#lefttree .sidebar-item ul {
+    display: none;
+}
+#lefttree .sidebar-item ul li {
+    height: 30px;
+    margin-left: 10px;
+}
+
+#lefttree .sidebar-item ul li:before {
+    width: 10px;
+    height: 80%;
+    border: 1px dashed #888;
+    border-top-style: none;
+    border-right-style: none;
+    clear: both;
+    content: "";
+    display: inline-block;
+}
