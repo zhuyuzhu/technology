@@ -1,6 +1,6 @@
 const data = [
     {
-        fatherName: "name",
+        fatherNameFlag: "name",
         childrenData: [
             {
                 childName: "child1",
@@ -13,7 +13,7 @@ const data = [
             }
         ]
     }, {
-        fatherName: "name",
+        fatherNameFlag: "name",
         childrenData: [
             {
                 childName: "child1",
@@ -28,7 +28,7 @@ const data = [
     }
 ]
 
-let constructLeftTree = function (data) {
+let constructLeftTree = function (data, projectName) {
     let $leftTree = document.getElementById('lefttree');
     let leftTreeHtml = '';
 
@@ -36,7 +36,7 @@ let constructLeftTree = function (data) {
     data.forEach(item => {
         let childHtml = '';
         item.childrenData.forEach(childItem => {
-            childHtml += `<a href="${childItem.childUrl}"><li class="iconfont">${childItem.childName}</li></a>`
+            childHtml += `<a href="${projectName+'/'+item.fatherNameFlag+'/'+childItem.childUrl}"><li class="iconfont">${childItem.childName}</li></a>`
         })
         leftTreeHtml += `<div>
         <div class="sidebar-item">
@@ -64,9 +64,7 @@ let constructLeftTree = function (data) {
             $icon.removeClass('rotate90').addClass('rotate0');
             $ul.hide();
         } else { //收起——展开
-            $rotate90Icon.removeClass('rotate90').addClass('rotate0');
             $icon.addClass('rotate90').removeClass('rotate0')
-            $itemUl.hide();
             $ul.show();
         }
     })

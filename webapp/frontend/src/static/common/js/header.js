@@ -42,7 +42,6 @@
 
     let $headerUl = document.getElementById('header').firstElementChild;
     let  headerHtml = '';
-    console.log($headerUl)
     headeritems.forEach((item, index) => {
         headerHtml += `<a href="${item.linkSrc}" target="${item.flag == "about" || item.flag=="index" ? '_blank' : '_self'}"><li flag='${item.flag}'>${item.name}</li><a>`
     })

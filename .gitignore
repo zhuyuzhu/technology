@@ -1,1 +1,8 @@
-node_modules/
+# 忽略所有的文件，除了后面这些
+/*
+!webapp/
+!issue.md
+!package-lock.json
+!package.json
+!readme.md
+!technology.md

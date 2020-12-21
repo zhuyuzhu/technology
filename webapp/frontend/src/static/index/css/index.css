@@ -2,10 +2,48 @@
     
 }
 #content .container{
-    padding: 90px 0 110px;
+    padding: 40px 0 110px;
     background: linear-gradient(45deg,#020031,#6d3353);
     width: 100%;
-    height: 100px;
+    height: 160px;
+    color: #fff;
+    text-align: center;
+}
+#content .container p {
+    /* margin-bottom: 20px; */
+}
+#content .container .myblog {
+    font-size: 60px;
+    text-shadow: 5px 5px 5px #337ab7;
+    margin-bottom: 20px;
+}
+#content .container .blog-description {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+#content .container .blog-code-address {
+    display: inline-block;
+    width: 160px;
+    height: 40px;
+    color: #fff;
+    background: #337ab7;
+    font-size: 18px;
+    line-height: 40px;
+    letter-spacing: 4px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 0px 1px #4fa6f1;
+}
+#content .container .blog-code-address:hover {
+    cursor: pointer;
+    background-color: #1367b1;
+}
+#content .project {
+    text-align: center;
+}
+#content .project ul {
+    display: inline-block;
+    text-align: left;
+    width: 1440px;
 }
 #content .project ul li {
     float: left;

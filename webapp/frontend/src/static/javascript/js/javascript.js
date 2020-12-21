@@ -1,5 +1,5 @@
 import {constructLeftTree} from '../../common/js/lefttree.js';
-
+let projectName = "/javascript";
 let treeData = [
     //基础知识：
     {
@@ -8,11 +8,11 @@ let treeData = [
         childrenData: [
             {
                 childName: "基础知识(一)",
-                childUrl: "js_basic"
+                childUrl: "js_basic.html"
             },
             {
                 childName: "基础知识(二)",
-                childUrl: "js_basic_knowledge"
+                childUrl: "js_basic_knowledge.html"
             },
             {
                 childName: "运算符优先级",
@@ -254,4 +254,4 @@ let treeData = [
     },
 ]
 
-constructLeftTree(treeData);
+constructLeftTree(treeData, projectName);
