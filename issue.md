@@ -139,7 +139,7 @@ BOM菜鸟教程：https://www.runoob.com/js/js-window.html
 
 
 
-HTML和CSS
+### HTML和CSS
 
 居中问题：
 
@@ -147,10 +147,27 @@ HTML和CSS
 
 a标签的样式引发的问题：在a标签的父级标签已经设置了color颜色，但是a标签必须单独设置color颜色才能生效。因为a标签有自己的color默认颜色，父级无效。只有在a标签中重新设置color值，才可以。
 
-HTML5和CSS3
+伪元素：
+
+
+
+HTML中怎么写，才能防止，后端注入的html字符串生效。而不识别为字符串。
+
+art-template模板的内部处理：
+
+```
+{{@docs.content}}
+```
+
+https://blog.csdn.net/weixin_44673034/article/details/102666548
+
+### HTML5和CSS3
 
 线性渐变
 
 文字阴影
 
 盒子阴影
+
+
+

@@ -36,7 +36,7 @@ let constructLeftTree = function (data, projectName) {
     data.forEach(item => {
         let childHtml = '';
         item.childrenData.forEach(childItem => {
-            childHtml += `<a href="${projectName+'/'+item.fatherNameFlag+'/'+childItem.childUrl}"><li class="iconfont">${childItem.childName}</li></a>`
+            childHtml += `<a href="${projectName+'/'+item.fatherNameFlag+'/'+childItem.childUrl}"><li>${childItem.childName}</li></a>`
         })
         leftTreeHtml += `<div>
         <div class="sidebar-item">

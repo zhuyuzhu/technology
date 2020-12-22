@@ -1,4 +1,4 @@
-import {constructLeftTree} from '../../common/js/lefttree.js';
+import { constructLeftTree } from '../../common/js/lefttree.js';
 let projectName = "/javascript";
 let treeData = [
     //基础知识：
@@ -8,11 +8,11 @@ let treeData = [
         childrenData: [
             {
                 childName: "基础知识(一)",
-                childUrl: "js_basic.html"
+                childUrl: "js_basic"
             },
             {
                 childName: "基础知识(二)",
-                childUrl: "js_basic_knowledge.html"
+                childUrl: "js_basic_knowledge"
             },
             {
                 childName: "运算符优先级",
@@ -255,3 +255,18 @@ let treeData = [
 ]
 
 constructLeftTree(treeData, projectName);
+
+$('#saveBtn').on('click', function () {
+    $.get('http://localhost:3000/js_function').then(function (res) {
+        console.log(res);
+        return $.post('/javascript/save', {
+            article_id: res.article_id,
+            title: res.title,
+            description: res.description,
+            content: res.content
+        })
+    }).then(function(res){
+        console.log(res)
+    })
+
+})

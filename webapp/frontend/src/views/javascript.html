@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="/static/common/css/lefttree.css">
     <link rel="stylesheet" href="/static/common/css/iconfont.css">
     <link rel="stylesheet" href="/static/javascript/css/javascript.css">
-    <script src="/static/common/js/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/common/css/htmledit.css">
+    <link rel="stylesheet" href="/static/common/css/content.css">
     <title>JavaScript</title>
 </head>
 <body>
@@ -20,6 +21,24 @@
 
     </div>
 
+    <div id="content">
+        <div class="left-tree"></div>
+        <main>
+            <div class="blog-content-box">
+                <article class="baidu_pl">
+                    <div id="article_content" class="article_content clearfix">
+                        
+                        <div class="htmledit_views" id="content_views" >
+                            {{@docs.content}}
+                        </div>
+                </article>
+    
+            </div>
+            
+        </main>
+        <!-- <button id="saveBtn">保存按钮</button> -->
+    </div>
+    <script src="/static/common/js/jquery.min.js"></script>
     <script src="/static/common/js/header.js"></script>
     <script src="/static/javascript/js/javascript.js" type="module"></script>
 </body>
