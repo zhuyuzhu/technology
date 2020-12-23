@@ -54,7 +54,7 @@ let projectHtml = '';
 projectData.forEach(itemPro => {
     projectHtml += `
     <li>
-        <a href="${itemPro.href}" target="_blank">
+        <a href="${itemPro.href}" target="_self">
             <img src= "${itemPro.img}" alt ="">
             <div class="project_name"><span>${itemPro.name}</span></div>
         </a>

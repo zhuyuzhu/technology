@@ -4,9 +4,6 @@ var path = require('path');
 var jsRouter = express.Router();
 let JavascriptModel = require('../modules/javascript/db_javascript');
 
-
-let views = '../frontend/src/views'; //前端views文件夹路径
-
 // middleware that is specific to this router
 jsRouter.use(function (req, res, next) {
     console.log('Time: ', Date.now())
@@ -14,7 +11,7 @@ jsRouter.use(function (req, res, next) {
 })
 //handel /javascript request
 jsRouter.get('/', (req, res, next) => {
-    fs.readFile(path.join(__dirname, views + '/javascript.html'), (err, data) => {
+    fs.readFile(path.join(__dirname, '../frontend/src/views/javascript.html'), (err, data) => {
         res.status(200).end(data);
     })
 })

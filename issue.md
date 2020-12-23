@@ -90,7 +90,7 @@ shell中的注释：
 
 ### 浏览器特性
 
-浏览器窗口加载过的资源，不会多次加载。
+页面某次加载时，不会多次加载同一个资源。
 
 比如：某个图片上有很多的图标，每个图标通过img标签的src获取。当前窗口获取过该图片资源后。就不再发送请求获取。其他使用该图片的img标签，都不再进行资源获取。
 
@@ -98,11 +98,13 @@ shell中的注释：
 
 a标签可以局部获取html文件，两个思路，第一个a标签可以下载文件的功能。第二，a标签的点击事件，进行ajax请求，获取资源。
 
-a标签的特性：跳转路由，且刷新页面。如果组织默认事件，a标签将失去所有的默认行为。
+a标签的特性：跳转路由，且刷新页面。如果阻止默认事件，a标签将失去所有的默认行为。
 
 `location.href`的特点：页面跳转到指定路径，且刷新页面。——研究一下。
 
-难道不是a标签的局部获取资源？而是a标签的本窗口打开新的路径
+webpack中文网的实现特点：页面刷新和点击a标签，进行ajax请求。两种策略去实现的网站。
+
+
 
 BOM修改页面url。
 
@@ -122,13 +124,11 @@ https://developer.mozilla.org/zh-CN/docs/Web/API/Navigator
 
 BOM菜鸟教程：https://www.runoob.com/js/js-window.html
 
-发送ajax请求获取html资源
-
 
 
 ### 原生js
 
-判断浏览器是否支持某个标签的属性：判断标签的兼容性
+**判断浏览器是否支持某个标签的属性：判断标签的兼容性**
 
 ```js
     var supportDownload = "download" in document.createElement("a");
@@ -139,21 +139,33 @@ BOM菜鸟教程：https://www.runoob.com/js/js-window.html
 
 
 
+**js修改url，却不刷新页面**
+
+发现一个可以改变地址栏，而不导致页面刷新的东东。 Chrome, FF测试通过，不支持IE.
+
+https://www.cnblogs.com/ygunoil/p/12815615.html
+
 ### HTML和CSS
 
-居中问题：
+**居中问题：**
 
 如果让一个块具有inline特性，那么就可以使用text-align属性让其居中。
 
-a标签的样式引发的问题：在a标签的父级标签已经设置了color颜色，但是a标签必须单独设置color颜色才能生效。因为a标签有自己的color默认颜色，父级无效。只有在a标签中重新设置color值，才可以。
 
-伪元素：
+
+**a标签的样式引发的问题：**
+
+在a标签的父级标签已经设置了color颜色，但是a标签必须单独设置color颜色才能生效。因为a标签有自己的color默认颜色，父级无效。只有在a标签中重新设置color值，才可以。
+
+需要全方面对a标签进行研究。
+
+**伪元素：**
 
 
 
 HTML中怎么写，才能防止，后端注入的html字符串生效。而不识别为字符串。
 
-art-template模板的内部处理：
+art-template插件内部实现：
 
 ```
 {{@docs.content}}
@@ -163,11 +175,128 @@ https://blog.csdn.net/weixin_44673034/article/details/102666548
 
 ### HTML5和CSS3
 
-线性渐变
+CSS3菜鸟教程：https://www.runoob.com/css3/css3-gradients.html
 
-文字阴影
+**渐变**
 
-盒子阴影
+线性渐变和径向渐变
 
 
 
+**文字阴影**
+
+text-shadow  兼容性IE10
+
+```css
+text-shadow: h-shadow v-shadow blur color;
+```
+
+**注意：** text-shadow属性连接一个或更多的阴影文本。属性是阴影，指定的每2或3个长度值和一个可选的颜色值用逗号分隔开来。已失时效的长度为0。
+
+| 值         | 描述                             |
+| :--------- | :------------------------------- |
+| *h-shadow* | 必需。水平阴影的位置。允许负值。 |
+| *v-shadow* | 必需。垂直阴影的位置。允许负值。 |
+| *blur*     | 可选。模糊的距离。               |
+| *color*    | 可选。阴影的颜色                 |
+
+```js
+object.style.textShadow="2px 2px #ff0000"
+```
+
+
+
+**盒子阴影**  
+
+box-shadow  兼容性IE9
+
+```css
+box-shadow: h-shadow v-shadow blur spread color inset;
+```
+
+| 值         | 说明                                                         |
+| :--------- | :----------------------------------------------------------- |
+| *h-shadow* | 必需的。水平阴影的位置。允许负值                             |
+| *v-shadow* | 必需的。垂直阴影的位置。允许负值                             |
+| *blur*     | 可选。模糊距离                                               |
+| *spread*   | 可选。阴影的大小                                             |
+| *color*    | 可选。阴影的颜色。在[CSS颜色值](https://www.runoob.com/cssref/css_colors_legal.aspx)寻找颜色值的完整列表 |
+| inset      | 可选。从外层的阴影（开始时）改变阴影内侧阴影                 |
+
+**注意：**box-shadow 属性把一个或多个下拉阴影添加到框上。该属性是一个用逗号分隔阴影的列表，每个阴影由 2-4 个长度值、一个可选的颜色值和一个可选的 inset 关键字来规定。省略长度的值是 0。
+
+*object*.style.boxShadow="10px 10px 5px #888888"
+
+
+
+**媒体查询**
+
+```css
+屏幕宽度在1280px——1440px之间时，以下内容生效
+@media screen and (min-width:1280px) and (max-width:1440px){
+    #content .project ul {
+        width: 1160px
+    }
+}
+```
+
+
+
+### 项目中express的使用
+
+在webapp.js引入express
+
+```js
+var express = require('express');
+
+var app = express();
+
+```
+
+### 项目中路由的使用
+
+在路由中
+
+```js
+var express = require('express');
+
+var Router = express.Router();
+```
+
+
+
+
+
+
+
+### 额外
+
+一个有趣的背景：https://www.cnblogs.com/MrZhujl/p/11510496.html
+
+
+
+张鑫旭：https://www.zhangxinxu.com/
+
+
+
+Typora画流程图：
+
+https://www.cnblogs.com/yiyangyu/p/typora.html
+
+官网流程图：
+
+https://support.typora.io/Draw-Diagrams-With-Markdown/
+
+```sequence
+
+Alice->Bob: Hello Bob, how are you?
+Note right of Bob: Bob thinks
+Bob-->Alice: I am good thanks!
+
+```
+
+响应式PC端媒体查询：
+
+电脑屏蔽及尺寸的例表上我们得到了几个宽度
+
+**1024    1280 a      1366    1440 a    1680    1920** 

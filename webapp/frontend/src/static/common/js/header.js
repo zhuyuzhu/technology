@@ -43,7 +43,7 @@
     let $headerUl = document.getElementById('header').firstElementChild;
     let  headerHtml = '';
     headeritems.forEach((item, index) => {
-        headerHtml += `<a href="${item.linkSrc}" target="${item.flag == "about" || item.flag=="index" ? '_blank' : '_self'}"><li flag='${item.flag}'>${item.name}</li><a>`
+        headerHtml += `<a href="${item.linkSrc}" target="${item.flag == "about" || item.flag=="index" ? '_self' : '_blank'}"><li flag='${item.flag}'>${item.name}</li><a>`
     })
     $headerUl.innerHTML = headerHtml;
     
