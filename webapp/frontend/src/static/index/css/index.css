@@ -1,30 +1,7 @@
-@media screen and (min-width:1440px){
-    #content .project ul {
-        width: 1440px
-    }
-}
-@media screen and (min-width:1280px) and (max-width:1440px){
-    #content .project ul {
-        width: 1160px
-    }
-}
-@media screen and (min-width:1024px) and (max-width:1280px){
-    #content .project ul {
-        width: 870px
-    }
-}
-@media screen and (max-width:1024px){
-    #content .project ul {
-        width: 600px
-    }
-}
-
-
-
-#content {
+#index-content {
     
 }
-#content .container{
+#index-content .container{
     padding: 40px 0 110px;
     background: linear-gradient(45deg,#020031,#6d3353);
     width: 100%;
@@ -32,19 +9,19 @@
     color: #fff;
     text-align: center;
 }
-#content .container p {
+#index-content .container p {
     /* margin-bottom: 20px; */
 }
-#content .container .myblog {
+#index-content .container .myblog {
     font-size: 60px;
     text-shadow: 5px 5px 5px #337ab7;
     margin-bottom: 20px;
 }
-#content .container .blog-description {
+#index-content .container .blog-description {
     font-size: 30px;
     margin-bottom: 20px;
 }
-#content .container .blog-code-address {
+#index-content .container .blog-code-address {
     display: inline-block;
     width: 160px;
     height: 40px;
@@ -56,18 +33,19 @@
     border-radius: 5px;
     box-shadow: 0px 2px 0px 1px #4fa6f1;
 }
-#content .container .blog-code-address:hover {
+#index-content .container .blog-code-address:hover {
     cursor: pointer;
     background-color: #1367b1;
 }
-#content .project {
+#index-content .project {
     text-align: center;
 }
-#content .project ul {
+#index-content .project ul {
     display: inline-block;
     text-align: left;
 }
-#content .project ul li {
+/* li确定具体的宽高，内部元素全部按百分比 */
+#index-content .project ul li {
     float: left;
     width: 265px;
     height: 340px;
@@ -76,22 +54,26 @@
     margin: 10px;
     box-shadow: 2px 2px  10px #999;
 }
-#content .project ul li img{
+#index-content .project ul li img{
     width: 100%;
-    height: 170px;
+    height: 50%;
 }
-#content .project ul li .project_name {
+#index-content .project ul li .project_name {
     text-align: center;
     font-weight: 500;
     font-size: 26px;
-    padding: 10px 0px;
+    padding: 3% 0px;
 }
-#content .project ul li .project_name:hover {
+#index-content .project ul li .project_name:hover {
     color: blue;
 }
-#content .project ul li .description {
+#index-content .project ul li .description {
     font-size: 14px;
     text-indent: 28px;
     padding: 5px 10px;
     line-height: 24px;
+    height: 27%;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

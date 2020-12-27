@@ -1,8 +1,9 @@
 #lefttree {
+    /* 在原来的位置上进行定位，原来位置可以是默认居中的 */
     position: relative;
-    left: 150px;
+    left: 30px;
     top: 10px;
-    width: 300px;
+    width: 220px;
     height: 800px;
     overflow: auto;
 }
@@ -12,7 +13,6 @@
 }
 
 #lefttree .sidebar-item {
-    cursor: pointer;
     margin-top: 20px;
 }
 #lefttree .sidebar-item .technology-title {
@@ -49,7 +49,12 @@
         transform: rotate(0deg);
     }
 }
-#lefttree .sidebar-item span {}
+#lefttree .sidebar-item i {
+    cursor: pointer;
+}
+#lefttree .sidebar-item span {
+    cursor: pointer;
+}
 
 #lefttree .sidebar-item ul {
     display: none;
@@ -73,4 +78,22 @@
     content: "";
     display: inline-block;
     margin-right: 4px;
+}
+#lefttree .sidebar-item ul li a {
+    color: #535353;
+}
+#lefttree .sidebar-item ul li a:hover {
+    color: #1D78C1;
+}
+#lefttree .sidebar-item ul li.new_article {
+    cursor: pointer;
+}
+#lefttree .sidebar-item ul li.new_article:hover {
+    color: red;
+}
+.active {
+    color: #1D78C1!important;
+}
+.rotate90deg {
+    transform: rotate(90deg);
 }

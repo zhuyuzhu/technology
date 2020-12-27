@@ -1,0 +1,68 @@
+#articleTpl-content {
+    position: absolute;
+    top: 20px;
+    left: 250px;
+    padding-left: 20px;
+    width: 800px;
+    background-color: #fff;
+}
+#articleTpl-content  main {
+    padding-top: 10px;
+}
+#leftArrow {
+    left: 50px;
+}
+#rightArrow {
+    right: 50px;
+}
+.arrow{
+    position: fixed;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    color: #999;
+    font-size: 30px;
+    cursor: pointer;
+}
+.arrow:hover {
+    color: #666;
+}
+#article_content {
+    position: relative;
+}
+#content_views {
+    min-height: 600px;
+    margin-top: 50px;
+}
+.edit_content {
+    position:absolute;
+    right: 20px;
+    top: 10px;
+    color: #2086d7;
+    font-size: 14px;
+    cursor: pointer;
+}
+.save_content {
+    position:absolute;
+    right: 20px;
+    top: 10px;
+    color: #2086d7;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+}
+.save_content:hover  {
+    color: #2042d7;
+}
+.cancel_content {
+    position:absolute;
+    right: 90px;
+    top: 10px;
+    color: #2086d7;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+}
+.cancel_content:hover {
+    color: #2042d7;
+}

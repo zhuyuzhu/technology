@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/common/css/reset.css">
+    <link rel="stylesheet" href="/static/common/css/header.css">
+    <link rel="stylesheet" href="/static/common/css/lefttree.css">
+    <link rel="stylesheet" href="/static/common/css/iconfont.css">
+    <link rel="stylesheet" href="/static/common/css/htmledit.css">
+    <link rel="stylesheet" href="/static/common/css/media.css">
+    <link rel="stylesheet" href="/static/common/css/articleTpl.css">
+    
+    <title>JavaScript</title>
+</head>
+<body>
+    <div id="header">
+        <ul class="wrapper"></ul>
+    </div>
+
+    <div class="content-wrapper">
+        <div id="lefttree">
+        </div>
+    
+        <div id="articleTpl-content">
+            <a id="leftArrow" class="arrow iconfont">&#xe632;</a>
+            <a id="rightArrow" class="arrow iconfont">&#xe600;</a>
+            <main>
+                <div class="blog-content-box">
+                    <article class="baidu_pl">
+                        <div id="article_content" class="article_content clearfix">
+                            <div class="edit_content iconfont">编辑此页&nbsp;&nbsp;&#xe604;</div>
+                            <div class="save_content iconfont">保存&nbsp;&#xe601;</div>
+                            <div class="cancel_content iconfont">取消&nbsp;&#xe62b;</div>
+                            <div class="htmledit_views" id="content_views">
+                                {{@docs.content}}
+                            </div>
+                    </article>
+        
+                </div>
+                
+            </main>
+            <!-- <button id="saveBtn">保存按钮</button> -->
+        </div>
+    </div>
+    <script src="/static/common/js/jquery.min.js"></script>
+    <script src="/static/common/js/header.js"></script>
+    <script src="/static/common/js/articleTpl.js" type="module"></script>
+</body>
+</html>

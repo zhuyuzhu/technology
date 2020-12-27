@@ -159,6 +159,22 @@ https://www.cnblogs.com/ygunoil/p/12815615.html
 
 需要全方面对a标签进行研究。
 
+a标签包裹别的标签、别的标签包裹a标签的区别：
+
+之一：a内的所有标签点击都会触发a标签的特性、点击a标签才会触发a标签特性
+
+***user agent stylesheet***
+
+```
+a:-webkit-any-link {
+    color: -webkit-link;
+    cursor: pointer;
+    text-decoration: underline;
+}
+```
+
+
+
 **伪元素：**
 
 
@@ -240,6 +256,71 @@ box-shadow: h-shadow v-shadow blur spread color inset;
 }
 ```
 
+https://developer.mozilla.org/zh-CN/docs/Web/CSS/%E5%AA%92%E4%BD%93%E6%9F%A5%E8%AF%A2
+
+参考文章：https://www.cnblogs.com/lguow/p/9316598.html
+
+大于或等于960px的PC端（1920px、1600px、1440px、1280px、1140px、960px）、960px至640px之间的平板端（768px、640px）以及640px以下的手机端（480px、320px）
+
+手机最好还是用相对像素
+
+px、em、rem的区别：https://www.runoob.com/w3cnote/px-em-rem-different.html
+
+通过宽度的值，设置高度的值：https://blog.csdn.net/qq_39252703/article/details/81739872
+
+**媒体查询在项目中使用心得：**
+
+
+
+**box-属性**
+
+（1）box-sizing : border-box（在宽高之内绘制内边距和边框）  |  content-box (默认值，在宽度和高度之外绘制元素的内边距和边框)
+
+```css
+div
+{
+box-sizing:border-box;
+-moz-box-sizing:border-box; /* Firefox */
+-webkit-box-sizing:border-box; /* Safari */
+width:50%;
+float:left;
+}
+```
+
+### HTML和CSS
+
+1、margin塌陷：margin-top和margin-bottom同时设置在一个block标签时，谁的值大，谁生效。
+
+首行缩进：
+
+```
+text-indent:50px;
+```
+
+2、contenteditable属性
+
+显示border区，而非content区。
+
+### jquery
+
+1、给标签添加属性：
+
+```js
+$(selector).attr(attribute,value)
+```
+
+2、html()  和 text() 方法
+
+text获取标签内容，需要注意的是，text获取的内容，再插入的html标签中时，是无法当做html的，因为是text内容。
+
+此处就体现了html方法和text方法的区别使用。
+
+
+
+3、css()方法
+
+比如：设置border值
+
 
 
 ### 项目中express的使用
@@ -263,9 +344,43 @@ var express = require('express');
 var Router = express.Router();
 ```
 
+### 开放静态资源
+
+```js
+express.static()
+```
 
 
 
+### 网络--前后端传值
+
+1、前后端传值
+
+jquery 传post值，必须指定`传值对象`，且对象内的`属性名：属性值`
+
+数据结构：
+
+```
+{
+    a: 1,
+    b: 2,
+    c: 3
+}
+```
+
+express接收的req.body 就是该对象
+
+
+
+2、关于后端响应内容和状态码
+
+后端得到想要的值时，返回200和对应的内容；如果没有获取到想要的值，响应失败的内容，状态码呢？
+
+3、express响应内容
+
+当express响应了一个JSON.stringify（Object）时，前端得到的response对象是一个josn类型的对象。
+
+expense可以响应哪些内容，需要深入探讨。。。
 
 
 

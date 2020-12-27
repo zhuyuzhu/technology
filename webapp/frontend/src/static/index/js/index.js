@@ -14,7 +14,7 @@ const projectData = [
     {
         name: "JavaScript",
         img: "../static/index/images/javascript.jpg",
-        href: "./javascript",
+        href: "./javascript/basic/js_basic",
         decscription: "JavaScript ( JS ) 是一种具有函数优先的轻量级，解释型或即时编译型的编程语言。"
     },
     {
@@ -32,7 +32,7 @@ const projectData = [
     {
         name: "ES6",
         img: "../static/index/images/es6.jpg",
-        href: "",
+        href: "/es6",
         decscription: ""
     },
     {

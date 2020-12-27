@@ -1,0 +1,11 @@
+#javascript-content {
+    position: absolute;
+    top: 20px;
+    left: 250px;
+    padding-left: 20px;
+    width: 800px;
+    background-color: #fff;
+}
+#javascript-content  main {
+    padding-top: 10px;
+}
