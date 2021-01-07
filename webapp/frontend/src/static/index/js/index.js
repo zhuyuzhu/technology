@@ -64,3 +64,12 @@ projectData.forEach(itemPro => {
 })
 
 $projectUl.innerHTML = projectHtml;
+
+// $as = document.getElementsByTagName('a');
+
+// Array.prototype.slice.call($as).forEach(a => {
+//     a.onclick = function(event) {
+//         console.log(1111);
+//         event.preventDefault()
+//     }
+// })

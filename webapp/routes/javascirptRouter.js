@@ -29,7 +29,7 @@ jsRouter.get('/basic/js_basic', function (req, res, next) {
 jsRouter.post('/basic/js_basic', function (req, res, next) {
     //Model.find 返回数组，包含多个结果
     ArticleModel.findOne({ article_id: "106322980" }, function (err, docs) {
-        res.status(200).render('javascript.html', {
+        res.status(200).render('articleTpl.html', {
             docs
         })
     })
