@@ -20,24 +20,28 @@ jsRouter.get('/', (req, res, next) => {
  */
 jsRouter.get('/basic/js_basic', function (req, res, next) {
     //Model.find 返回数组，包含多个结果
-    ArticleModel.findOne({ article_id: "106322980" }, function (err, docs) {
-        res.status(200).render('javascript.html', {
+    ArticleModel.findOne({ article_id: "107078428" }, function (err, docs) {
+        if(err){
+            return res.status(200).end('1111')
+        }
+        res.status(200).render('articleTpl.html', {
             docs
         })
     })
 })
 jsRouter.post('/basic/js_basic', function (req, res, next) {
     //Model.find 返回数组，包含多个结果
-    ArticleModel.findOne({ article_id: "106322980" }, function (err, docs) {
-        res.status(200).render('articleTpl.html', {
-            docs
-        })
+    ArticleModel.findOneAndUpdate({ article_id: "107078428" }, { content: req.body.content }, function (err, docs) {
+        if(err){
+            return next(err)
+        }
+        res.status(200).end(JSON.stringify({
+            success: true,
+            code: 1,
+            data: req.body.content
+        }))
     })
-    res.status(200).end(JSON.stringify({
-        success: true,
-        code: 1,
-        data: req.body.content
-    }))
+
 })
 //keycode码
 jsRouter.get('/basic/js_keyCode', function (req, res, next) {

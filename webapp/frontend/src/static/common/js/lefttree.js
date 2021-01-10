@@ -80,6 +80,9 @@ let constructLeftTree = function (data, projectName) {
     let $itemUl = $('.sidebar-item ul'); //所有的UL
 
     $iconChevronRights.on('click', function (event) {
+        if($(event.target).hasClass('technology-title')){
+            return ;
+        }
         let $ul = $(this).parents('div.sidebar-item').find('ul');
         let $icon = $(this).parents('div.sidebar-item').find('.icon-chevron-right'); //该icon
         let $rotate90Icon = $('.rotate90'); //旋转90°的icon
@@ -93,6 +96,7 @@ let constructLeftTree = function (data, projectName) {
             $icon.addClass('rotate90').removeClass('rotate0')
             $ul.show();
         }
+        
     })
 
     let $new_article = $('.new_article')
