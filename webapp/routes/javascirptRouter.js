@@ -43,15 +43,7 @@ jsRouter.post('/basic/js_basic', function (req, res, next) {
     })
 
 })
-//keycode码
-jsRouter.get('/basic/js_keyCode', function (req, res, next) {
-    //Model.find 返回数组，包含多个结果
-    ArticleModel.findOne({ article_id: "88551188" }, function (err, docs) {
-        res.status(200).render('javascript.html', {
-            docs
-        })
-    })
-})
+
 //事件循环和任务队列
 jsRouter.get('/js_garbageColletion/js_EventLoop', function (req, res, next) {
     //Model.find 返回数组，包含多个结果
@@ -102,6 +94,14 @@ jsRouter.post('/save', (req, res, next) => {
     //   文档进行保存
     documentJS.save(function (err, data) {//documentJS文档进行保存，且调用对应的回到函数
         res.status(200).end(data.article_id)
+    })
+})
+
+jsRouter.use('/', (req, res, next) => {
+    res.status(200).render('articleTpl.html', {
+        docs: {
+            content: "未实现的页面"
+        }
     })
 })
 
