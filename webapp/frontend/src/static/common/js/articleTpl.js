@@ -270,6 +270,8 @@ let reg = /(?<=\/)\w+/g;//匹配前面是/的字符串
 let resultArr = pathname.match(reg)
 
 
+// $('.content-wrapper').width($(window).width() - 280)
+
 //编辑此页
 $editBtn.on('click', function () {
     oldContent = $contentViews.html();

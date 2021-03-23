@@ -46,7 +46,7 @@ let constructLeftTree = function (data, projectName) {
         let childHtml = '';
         item.childrenData.forEach(childItem => {
             childHtml += `
-            <li class="${childItem.childUrl}" draggable="true">
+            <li class="${childItem.childUrl}">
                 <a class=" ${childItem.childUrl == resultArr[2] ? 'active' : ''}" href="${projectName + '/' + item.fatherNameFlag + '/' + childItem.childUrl}">${childItem.childName}</a>
             </li>`
         })
@@ -55,10 +55,10 @@ let constructLeftTree = function (data, projectName) {
         leftTreeHtml += `<div>
         <div class="sidebar-item">
             <div class="technology-title ${item.fatherNameFlag}">
-                <i class="iconfont icon-chevron-right ${item.fatherNameFlag == resultArr[1] ? 'rotate90deg' : ''}">&#xe618;</i>
+                <i class="iconfont icon-chevron-right rotate90deg">&#xe618;</i>
                 <span>${item.fatherName}</span> 
             </div>
-            <ul style="display:${item.fatherNameFlag == resultArr[1] ? 'block' : 'none'}" >
+            <ul style="display:block" >
                 ${childHtml}
             </ul>
         </div>
@@ -98,8 +98,6 @@ let constructLeftTree = function (data, projectName) {
         }
         
     })
-
-    let $new_article = $('.new_article')
 }
 
 export { constructLeftTree };

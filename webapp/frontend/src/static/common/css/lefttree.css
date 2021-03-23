@@ -1,11 +1,13 @@
 #lefttree {
     /* 在原来的位置上进行定位，原来位置可以是默认居中的 */
-    position: relative;
-    left: 30px;
-    top: 10px;
-    width: 220px;
-    height: 800px;
-    overflow: auto;
+    position: absolute;
+    left: 80px;
+    top: 90px;
+    bottom: 0px;
+    display: inline-block;
+    width: 260px;
+    /* height: 800px; */
+    overflow-y: auto;
 }
 
 #lefttree .sidebar-item {
