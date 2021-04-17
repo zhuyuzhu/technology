@@ -7,6 +7,9 @@ let path = require('path');
 let bodyParser = require('body-parser'); //处理post请求的body
 let views = '../frontend/src/views'; //前端views文件夹路径
 
+var session = require('express-session')
+var cookieParser = require('cookie-parser')
+
 module.exports = function (app) {
     // parse application/x-www-form-urlencoded
     app.use(bodyParser.urlencoded({ extended: false }))
@@ -24,4 +27,15 @@ module.exports = function (app) {
     app.set('views', path.join(__dirname, views));
     //设置加载文件类型
     app.set('view engine', 'html');
+
+    //配置session
+    app.use(session({
+        secret: 'keyboard cat',
+        resave: false,
+        saveUninitialized: false
+    }))
+
+    //配置cookie
+    app.use(cookieParser())
+
 }

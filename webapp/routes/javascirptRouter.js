@@ -4,13 +4,38 @@ var path = require('path');
 var jsRouter = express.Router();
 let ArticleModel = require('../modules/db_article');
 
+//访问/javascript/login时，写入session
+jsRouter.get('/login', (req, res, next) => {
+    console.log(req.session)
+    console.log(req.cookies)
+    if(!req.session.a){
+        req.session.a ='a'
+    }
+    console.log(req.cookies.name)
+    next();
+})
+
 // middleware that is specific to this router
 jsRouter.use(function (req, res, next) {
     console.log('Time: ', Date.now())
-    next()
+    
+    if(!req.session.a){//没有session值，不往下走
+        console.log('no session value')
+    }else {
+        next()
+    }
 })
 //handel /javascript request 302永久重定向
 jsRouter.get('/', (req, res, next) => {
+    console.log(req.session)
+    console.log(req.cookies)
+    console.log(req.signedCookies)
+    if(!req.session.a){
+        req.session.a ='a'
+    }
+    if(!req.cookies.name){
+        res.cookie("name",'zhangsan',{maxAge: 900000, httpOnly: true});
+    }
     fs.readFile(path.join(__dirname, '../frontend/src/views/javascript.html'), (err, data) => {
         res.status(302).end(data);
     })
