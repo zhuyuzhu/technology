@@ -14,17 +14,69 @@
 
 ## 【JavaScript】【ES5】【ES6】
 
+### 数字Number、Math对象、全局数字方法
+
+js中的数字是双精度IEEE754 64位浮点型类型。
+
+Number构造函数构造出来的数字对象，那么该对象instance Number是true 。否则为false。
+
+Number方法，得到的结果要么是数字，是NaN
+
+数字的toString方法：接收一个参数，指定输出多少进制的数字字符串。(123).toString(16)  结果：字符串7b
+
+地址：https://blog.csdn.net/zyz00000000/article/details/108217648
+
 ### 字符串String
 
 字符串的方法都不会改变原字符串，因为js中，字符串是原始值（基本类型），是无法改变的 。
 
 字符串的方法：https://blog.csdn.net/zyz00000000/article/details/108101273
 
+indexOf、lastIndexOf、endsWith、startsWith、includes，都接收两个参数
+
+一找search二拆split三替换**replace**四匹配**match**；
+
+localeCompare与数组的sort方法结合，可以做首字母排序功能；
+
+数组的splice，连拆带替换，而字符串和数组的slice只有截取的功能，substring截取功能；
+
+大小写转换toUpperCase、toLowerCase，去除两侧空格trim
+
+操作字符char，charAt和charCodeAt
+
+search和indexOf都是找到返回索引，没找到返回-1
+
+
+
 ### 数组Array 
 
+改变原数组的7个方法：push、pop、unshift、shift、sort、splice、reverse
 
+问：push方法返回length值 ，
+
+答：push多个值进去，返回length长度最合理。
+
+pop方法移除项
+
+unshift 和shift一样 。
+
+reverse返回修改后的数组。
+
+slice 方法和字符串的slice方法一样；splice方法是slice方法进阶版。
+
+数组的indexOf和lastIndexOf 与字符串一样；
+
+
+
+ES5的遍历方法，重点forEach：forEach、map函数返回值组成的数组、some结果true或false、every结果true或false、filter符合条件的return true的组成的数组
+
+join方法和字符串的split方法对应，join方法按什么拼接数组的每项，split方法按什么拆字符串的每项；
+
+地址：https://blog.csdn.net/zyz00000000/article/details/106817618
 
 数组的reduce方法
+
+reduce地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 
 ### 对象Object
 
@@ -281,6 +333,10 @@ with和eval
 
 地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
 
+操作符
+
+instanceof、typeof、
+
 正则表达式
 
 setTimeout、clearTimeout、setInterval、clearInterval
@@ -294,6 +350,8 @@ https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTi
 【Vue】
 
 【node】【npm】
+
+npx、nrm
 
 【nginx】
 
@@ -317,7 +375,11 @@ https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTi
 
 【性能问题】
 
-尽量不使用数组的slice方法
+字符串的concat性能也不好，尽量使用+拼接符；
+
+尽量不使用数组的slice方法，使用相关的替代方法；
+
+
 
 【编码格式】
 
