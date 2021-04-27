@@ -64,7 +64,7 @@ reverse返回修改后的数组。
 
 slice 方法和字符串的slice方法一样；splice方法是slice方法进阶版。
 
-数组的indexOf和lastIndexOf 与字符串一样；
+数组的indexOf和lastIndexOf 与字符串一样；数组也有includes方法，但兼容性不是特别好。
 
 
 
@@ -196,7 +196,35 @@ reduce地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference
 
 ### 对象Object
 
+**原型上的方法：**
 
+Object.prototype.hasOwnProperty 配合for in使用
+
+Object.prototype.toString 可以查看数据类型
+
+
+
+**Object构造函数上方法：**
+
+**备注：**应当直接在 [`Object`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object) 构造器对象上调用此方法，而不是在任意一个 `Object` 类型的实例上调用。
+
+> ES5的方法：Object.keys()、Object.
+
+
+
+遍历方法的区别：https://blog.csdn.net/zyz00000000/article/details/109204555
+
+几个主要方法：https://blog.csdn.net/zyz00000000/article/details/106859332
+
+Object.defineProperty：https://blog.csdn.net/zyz00000000/article/details/106854845
+
+
+
+
+
+
+
+Object.keys兼容IE9，数组元素都是字符串，因为是对象的每个属性名
 
 地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
@@ -222,6 +250,18 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
 
 new执行函数时，this就是将要创建出来的实例对象。
 
+```js
+        function Fn (a, b) {
+            console.log(this) //空对象{}
+            this.a = a;
+            this.b = b
+            console.log(obj) //undefined
+            console.log(this); // {a: 1, b: 2}
+        }
+
+       var obj = new Fn(1,2) // {a: 1, b: 2}
+```
+
 
 
 ### 函数和原型
@@ -239,6 +279,8 @@ Object.prototype.toString.call(function a(){})
 ```
 
 构造函数的prototype属性指向原型对象；原型对象的constructor属性指向构造函数；构造函数和原型是一一对应的，所以两者之间可以互相引用，而实例对象可以有多个，没有标准的引用，有非标准的__proto__属性指向原型。
+
+函数的原型：**Function.prototype**也是一个函数，正如数组的原型是一个数组一样。
 
 **函数内的几个关键字**
 
@@ -467,7 +509,69 @@ call的性质和数组的几个ES5遍历方法的处理函数的thisArg性质一
         fn.call('str')
 ```
 
+apply具有展开数组的功能，所以可以展开类数组或数组，进行其他操作。比如push接收多个 值，可以通过apply展开；Array构造函数可以接收多个值，通过apply展开。Math.max和Math.min接收多个值，通过apply展开。
 
+
+
+apply实现bind：
+
+```js
+        function Fn (a, b) {
+            console.log(this); //{name: "obj"}
+            console.log(arguments)   //Arguments(5) [1, 2, 3, 4, 5, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+        }
+
+       var obj = {name: 'obj'}
+      
+       //执行一次绑定对象和参数——得到一个函数(确定了this和部分参数)
+       
+       if(!Function.prototype.mybind){
+           //bind的this是函数
+           //bind返回的结果还是一个函数
+           Function.prototype.mybind = function(){
+            var thisFn = this;
+            var thisArg = arguments[0] //绑定的对象，对象没有特殊处理，因为call、apply会有默认的处理方式
+            if(typeof thisFn !=="function"){
+                Error('Type Error')
+            }
+            var argArr = Array.prototype.slice.call(arguments, 1)
+            return function(){//bind接收的对象，作为apply的对象；bind接收的参数，拼接给apply的参数
+                var arr = argArr.concat(Array.prototype.slice.apply(arguments)); //使用mybind的参数
+                thisFn.apply(thisArg, arr) //使用mybind的函数
+            }
+           }
+       }
+       var fn = Fn.mybind(obj,1,2)
+       fn(3,4,5)
+```
+
+如果要兼容new关键字
+
+搞清楚，bind得到到函数，执行new的时候，结果是什么？什么原理？
+
+##### bind
+
+**bind()** 方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用。
+
+> thisArg
+> 调用绑定函数时作为 `this` 参数传递给目标函数的值。
+>
+>  如果使用new运算符构造绑定函数，则忽略该值。
+>
+> 当使用 `bind` 在 `setTimeout` 中创建一个函数（作为回调提供）时，作为 `thisArg` 传递的任何原始值都将转换为 `object`。
+>
+> 如果 `bind` 函数的参数列表为空，或者`thisArg`是`null`或`undefined`，执行作用域的 `this` 将被视为新函数的 `thisArg`。
+>
+> arg1, arg2, ...
+> 当目标函数被调用时，被预置入绑定函数的参数列表中的参数。
+
+
+
+返回值：返回一个原函数的拷贝，并拥有指定的 **`this`** 值和初始参数。
+
+MDN地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+
+查看文章：https://blog.csdn.net/zyz00000000/article/details/109675986
 
 
 
@@ -475,7 +579,15 @@ call的性质和数组的几个ES5遍历方法的处理函数的thisArg性质一
 
 
 
-严格模式和非严格模式
+### 严格模式和非严格模式
+
+1、arguments
+
+2、call 、apply
+
+3、数组ES5几个遍历方法，接收的第二个参数thisArg
+
+
 
 闭包
 
