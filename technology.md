@@ -14,6 +14,10 @@
 
 ## 【JavaScript】【ES5】【ES6】
 
+###  JavaScript 中的相等性判断
+
+地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness
+
 ### 数字Number、Math对象、全局数字方法
 
 js中的数字是双精度IEEE754 64位浮点型类型。
@@ -202,7 +206,11 @@ Object.prototype.hasOwnProperty 配合for in使用
 
 Object.prototype.toString 可以查看数据类型
 
+Object构造函数上两个辅助方法：assign和is方法
 
+assign：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+
+is：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/is
 
 **Object构造函数上方法：**
 
@@ -210,23 +218,56 @@ Object.prototype.toString 可以查看数据类型
 
 > ES5的方法：Object.keys()、Object.
 
+0、操作对象原型
 
+create：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+
+```js
+o = Object.create(Object.prototype, {
+  // foo会成为所创建对象的数据属性
+  foo: {
+    writable:true,
+    configurable:true,
+    value: "hello"
+  },
+  // bar会成为所创建对象的访问器属性
+  bar: {
+    configurable: false,
+    get: function() { return 10 },
+    set: function(value) {
+      console.log("Setting `o.bar` to", value);
+    }
+  }
+});
+```
+
+isPrototypeOf：https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf
+
+getPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf
+
+setPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
+
+1、循环遍历对象属性的方法
 
 遍历方法的区别：https://blog.csdn.net/zyz00000000/article/details/109204555
 
-几个主要方法：https://blog.csdn.net/zyz00000000/article/details/106859332
+包括：values和entries
+
+2、数据属性和访问器属性
 
 Object.defineProperty：https://blog.csdn.net/zyz00000000/article/details/106854845
 
+getter和setter的探讨：
+
+
+
+3、ES5的操作对象，冻结、密封
+
+比如冻结对象：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 
 
 
 
-
-
-Object.keys兼容IE9，数组元素都是字符串，因为是对象的每个属性名
-
-地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
 
 
