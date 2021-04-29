@@ -18,6 +18,37 @@
 
 地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness
 
+比较判断相等，也是有对应的规则规范的，比如IEEE754，
+
+==：进行类型隐式转换，NaN == NaN  false
+
+===：不进行类型转换，-0  === +0  true    NaN === NaN false
+
+Object.is的行为方式与三等号相同，但是对于NaN和-0和+0进行特殊处理，所以最后两个不相同，而Object.is（NaN，NaN）将为 `true`。
+
+Object.is('+0','-0')   false
+
+Object.js的相关使用点：Object.defineProperty， 向 Nmuber 构造函数添加一个不可变的属性 NEGATIVE_ZERO
+
+```js
+
+Object.defineProperty(Number, "NEGATIVE_ZERO",
+                      { value: -0, writable: false, configurable: false, enumerable: false });
+
+function attemptMutation(v)
+{
+  Object.defineProperty(Number, "NEGATIVE_ZERO", { value: v });
+}
+```
+
+`Object.defineProperty` 在试图修改不可变属性时，如果这个属性确实被修改了则会抛出异常，反之什么都不会发生。例如如果 v 是 -0 ，那么没有发生任何变化，所以也不会抛出任何异常。但如果 v 是 +0 ，则会抛出异常。不可变属性和新设定的值使用 same-value 相等比较。**——同值相等由 [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) 方法提供。**
+
+
+
+关于性能、全等和全等：有些开发者认为，最好永远都不要使用相等操作符。全等操作符的结果更容易预测，并且因为没有隐式转换，全等比较的操作会更快。（等式 `(x !== x)` 成立的唯一情况是 x 的值为 NaN）
+
+
+
 ### 数字Number、Math对象、全局数字方法
 
 js中的数字是双精度IEEE754 64位浮点型类型。
@@ -29,6 +60,13 @@ Number方法，得到的结果要么是数字，是NaN
 数字的toString方法：接收一个参数，指定输出多少进制的数字字符串。(123).toString(16)  结果：字符串7b
 
 地址：https://blog.csdn.net/zyz00000000/article/details/108217648
+
+**`BigInt`** 是一种内置对象，它提供了一种方法来表示大于 `253 - 1` 的整数。这原本是 Javascript中可以用 [`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 表示的最大数字。**`BigInt`** 可以表示任意大的整数。
+
+>  typeof 9007199254740991n
+> "bigint"
+> typeof 9n
+> "bigint"
 
 ### 字符串String
 
@@ -185,6 +223,8 @@ join方法和字符串的split方法对应，join方法按什么拼接数组的�
 
 **数组的reduce方法：**
 
+CSDN：https://blog.csdn.net/zyz00000000/article/details/116167362
+
 **reducer** 函数接收4个参数:
 
 1. Accumulator (acc) (累计器)
@@ -319,9 +359,23 @@ Object.prototype.toString.call(function a(){})
 "[object Function]"
 ```
 
+```js
+Function.prototype.isPrototypeOf(fn) 如果fn是函数，结果true
+```
+
+
+
 构造函数的prototype属性指向原型对象；原型对象的constructor属性指向构造函数；构造函数和原型是一一对应的，所以两者之间可以互相引用，而实例对象可以有多个，没有标准的引用，有非标准的__proto__属性指向原型。
 
-函数的原型：**Function.prototype**也是一个函数，正如数组的原型是一个数组一样。
+函数的原型：**Function.prototype**也是一个函数，正如数组的原型是一个数组一样。**——对象的两种衍生方式**
+
+那么如何区分函数和函数原型呢？函数原型没有prototype属性
+
+> Function.prototype.prototype === undefined
+
+函数原型上有隐式属性constructor，指向该函数。
+
+
 
 **函数内的几个关键字**
 
@@ -393,6 +447,8 @@ var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, argument
         }
         console.log(Array.apply(null, likeArr))
 ```
+
+**因为：apply可以接收类数组 兼容IE9**
 
 结果：[undefined, undefined, undefined, "a", "b", "c"]
 
@@ -554,7 +610,7 @@ apply具有展开数组的功能，所以可以展开类数组或数组，进行
 
 
 
-apply实现bind：
+**call、apply实现bind：**
 
 ```js
         function Fn (a, b) {
@@ -586,7 +642,79 @@ apply实现bind：
        fn(3,4,5)
 ```
 
-如果要兼容new关键字
+没有兼容new时，执行自实现的mybind
+
+```js
+        function Fn (a,b){
+            this.a =  a;
+            this.b = b;
+            console.log(this)  //new时的打印：{ name: "obj" }
+        }
+        if(!Function.prototype.mybind){
+            Function.prototype.mybind = function(){
+               var bindFn = this; //获取函数，this指代函数
+               var bindThisArgs = arguments[0]; //绑定的对象
+                var bindArgs = Array.prototype.slice.call(arguments, 1); //获取bind的参数
+                if(typeof bindFn !=="function"){
+                    return new TypeError('Type Error')
+                }
+                return function(){//此处this来区分new或者不new
+                    
+                    //数组slice不传参，默认截取全部
+                    var argArr = bindArgs.concat(Array.prototype.slice.call(arguments));
+                    bindFn.apply(bindThisArgs, argArr)
+                }
+                
+            }
+        }
+        var obj = { name: "obj" }
+
+        var fn = Fn.mybind(obj, 1,2);
+
+        console.log(new fn()) //空对象：{}
+```
+
+new时，实际上是对return function进行创建对象，而没有对Fn进行new。所以创建了空对象，且Fn中的this还是obj。
+
+
+
+**如果要兼容new关键字，如何区分是new出来的对象呢？**
+
+如果是new，那么bound中的this一定是通过bound函数构造出来的，这样就把this传递给原函数Fn。
+
+如果不是new，那么this就是fn函数的自执行（不考虑bind后的函数再被别的对象调用），非严格模式下，是window。严格模式下是undefined。
+
+```js
+        function Fn (a,b){
+            this.a =  a;
+            this.b = b;
+        }
+        if(!Function.prototype.mybind){
+            Function.prototype.mybind = function(){
+               var bindFn = this; //获取函数，this指代函数
+               var bindThisArgs = arguments[0]; //绑定的对象
+                var bindArgs = Array.prototype.slice.call(arguments, 1); //获取bind的参数
+                if(typeof bindFn !=="function"){
+                    return new TypeError('Type Error')
+                }
+                var bound = function(){
+                    console.log(this); //区分new或者不new
+                    //数组slice不传参，默认截取全部
+                    var argArr = bindArgs.concat(Array.prototype.slice.call(arguments));
+                    return bindFn.apply(bound.prototype.isPrototypeOf(this) ? this: bindThisArgs, argArr)
+                }
+                return bound;
+                
+            }
+        }
+        var obj = { name: "obj" }
+
+        var fn = Fn.mybind(obj, 1,2);
+        fn();
+        console.log(new fn()) //空对象：{}
+```
+
+
 
 搞清楚，bind得到到函数，执行new的时候，结果是什么？什么原理？
 
@@ -611,6 +739,56 @@ apply实现bind：
 返回值：返回一个原函数的拷贝，并拥有指定的 **`this`** 值和初始参数。
 
 MDN地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+
+**bind比较重要的一个作用：**
+
+在默认情况下，使用 [`window.setTimeout()`](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout) 时，`this` 关键字会指向 [`window`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window) （或 `global`）对象。当类的方法中需要 `this` 指向类的实例时，你可能需要显式地把 `this` 绑定到回调函数，就不会丢失该实例的引用。比如 ：
+
+```js
+        var obj1 = {
+            name: 'obj1'
+        }
+        function a(){
+            function b() {
+                setTimeout((function(){
+                    console.log(this);
+                }).bind(obj1), 1000);
+            }
+            b();
+        }
+        a();
+```
+
+
+
+改变apply或call的this指向，得到一个bind后的函数：
+
+bind绑定得到的函数，不影响bind原函数，比如函数fn，经过bind得到 函数a、b、c，不影响函数fn本身 。所以下面对apply绑定得到的函数slice，不影响原函数apply。
+
+apply函数中的this是函数，因为apply被函数调用，所以this是指代调用的函数；apply接收两个参数，apply被bind作用时，只改变this，不影响两个参数
+
+```js
+        var unboundSlice = Array.prototype.slice;
+        var slice = Function.prototype.apply.bind(unboundSlice);
+        function a(){
+            console.log(slice(arguments))
+        }
+        a(1,2,3,4)
+        //接收两个参数
+        Function.prototype.myapply = function(thisArg, arr){
+            console.log(this)//this是函数，apply是让函数调用的
+        }
+        //也就是哪个函数调用apply，将apply接收的参数传递给它
+        
+
+        var obj = {name: 'obj'}
+        var a = function(){
+            console.log(this.name)//obj
+        }
+        a.apply(obj)
+```
+
+
 
 查看文章：https://blog.csdn.net/zyz00000000/article/details/109675986
 
