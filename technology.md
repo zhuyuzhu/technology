@@ -26,7 +26,13 @@
 
 Object.is的行为方式与三等号相同，但是对于NaN和-0和+0进行特殊处理，所以最后两个不相同，而Object.is（NaN，NaN）将为 `true`。
 
-Object.is('+0','-0')   false
+```js
+        console.log(Object.is(+0, 0))//true
+        console.log(Object.is(-0, 0))//false
+        console.log(Object.is(+0,  -0))//false
+```
+
+
 
 Object.js的相关使用点：Object.defineProperty， 向 Nmuber 构造函数添加一个不可变的属性 NEGATIVE_ZERO
 
@@ -77,6 +83,8 @@ Number方法，得到的结果要么是数字，是NaN
 indexOf、lastIndexOf、endsWith、startsWith、includes，都接收两个参数，search和indexOf都是找到返回索引，没找到返回-1
 
 一找search二拆split三替换**replace**四匹配**match**；
+
+https://blog.csdn.net/zyz00000000/article/details/107957777
 
 操作字符char，charAt和charCodeAt，大小写转换toUpperCase、toLowerCase，去除两侧空格trim
 
@@ -258,7 +266,9 @@ is：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Ob
 
 > ES5的方法：Object.keys()、Object.
 
-0、操作对象原型
+1、操作对象原型
+
+creat：创建一个指定了原型的对象
 
 create：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create
 
@@ -287,13 +297,13 @@ getPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Referen
 
 setPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
 
-1、循环遍历对象属性的方法
+2、循环遍历对象属性的方法
 
 遍历方法的区别：https://blog.csdn.net/zyz00000000/article/details/109204555
 
 包括：values和entries
 
-2、数据属性和访问器属性
+3、数据属性和访问器属性
 
 Object.defineProperty：https://blog.csdn.net/zyz00000000/article/details/106854845
 
@@ -301,7 +311,7 @@ getter和setter的探讨：
 
 
 
-3、ES5的操作对象，冻结、密封
+4、ES5的操作对象，冻结、密封
 
 比如冻结对象：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 
@@ -860,11 +870,21 @@ npx、nrm
 
 缓存机制：https://segmentfault.com/a/1190000039870274?utm_source=tag-newest
 
-【性能问题】
+### 【性能问题】
 
-字符串的concat性能也不好，尽量使用+拼接符；
+1、字符串的concat性能也不好，尽量使用+拼接符；
 
-尽量不使用数组的slice方法，使用相关的替代方法；
+2、尽量不使用数组的slice方法，使用相关的替代方法；
+
+3、== 和 ===
+
+#### 实现继承的方式有哪些？
+
+Object.create方法
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create#%E7%94%A8_object.create%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%BC%8F%E7%BB%A7%E6%89%BF
+
+#### 手写深拷贝
 
 
 
