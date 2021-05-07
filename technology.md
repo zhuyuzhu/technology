@@ -53,6 +53,20 @@ function attemptMutation(v)
 
 关于性能、全等和全等：有些开发者认为，最好永远都不要使用相等操作符。全等操作符的结果更容易预测，并且因为没有隐式转换，全等比较的操作会更快。（等式 `(x !== x)` 成立的唯一情况是 x 的值为 NaN）
 
+==会默认调用对象的toString方法：
+
+```js
+        var a = {
+            value: 1,
+            toString: function(){
+                return this.value++
+            }
+        } ;
+        if (a == 1 && a == 2 && a == 3) {
+            console.log(1);
+        }
+```
+
 
 
 ### 数字Number、Math对象、全局数字方法
@@ -291,19 +305,90 @@ o = Object.create(Object.prototype, {
 });
 ```
 
-isPrototypeOf：https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf
+**isPrototypeOf**：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf
+
+isPrototypeOf() 方法用于测试一个对象是否存在于另一个对象的原型链上。
+
+
+
+**instanceof**：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/instanceof
+
+`instanceof` 运算符用来检测 `constructor.prototype `是否存在于参数 `object` 的原型链上。
+
+isPrototypeOf和instanceof的区别：
+
+A.isPrototypeOf(B)，A是不是在对象B的原型链上。
+
+A instanceof F，对象A的原型链上是否有函数F的原型
+
+> `isPrototypeOf()` 与 [`instanceof`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/instanceof) 运算符不同。在表达式 "`object instanceof AFunction`"中，`object` 的原型链是针对 `AFunction.prototype` 进行检查的，而不是针对 `AFunction` 本身。
+
+原型链上指的是，对象原型链，不包括该对象。如下 ：
+
+```js
+        console.log(F.prototype instanceof F) //false
+        console.log(F.prototype.isPrototypeOf(F.prototype)); //false
+```
+
+
 
 getPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf
 
+**构造函数Object上的方法，根据该方法的语义，也应该是Object上的方法，获取指定对象的原型——Object.getPrototypOf**
+
+
+
+`**Object.getPrototypeOf()**` 方法返回指定对象的原型（内部`[[Prototype]]`属性的值），给定对象的原型**。——就是`__proto__`属性。**
+
+如果没有继承属性，则返回 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 。比如构造函数构造出来的对象的`__proto__`指向的原型；比如原型链上，指向的原型。
+
+但是注意：**Object.getPrototypeOf(Object) 不是 Object.prototype**
+
+因为Object是构造函数，它的prototype属性指向对象，即构造函数的原型对象。`Object.__proto__`才是getPrototypeOf方法查找的值，如下：
+
+```js
+        console.log(Object.__proto__ === Object.getPrototypeOf(Object)) //true
+        console.log(Object.getPrototypeOf(Object)); //ƒ () { [native code] }
+```
+
+```js
+JavaScript中的 Object 是构造函数（创建对象的包装器）。
+一般用法是：
+var obj = new Object();
+
+所以：
+Object.getPrototypeOf( Object );               // ƒ () { [native code] }
+Object.getPrototypeOf( Function );             // ƒ () { [native code] }
+
+Object.getPrototypeOf( Object ) === Function.prototype;        // true
+
+Object.getPrototypeOf( Object )是把Object这一构造函数看作对象，
+返回的当然是函数对象的原型，也就是 Function.prototype。
+
+正确的方法是，Object.prototype是构造出来的对象的原型。
+var obj = new Object();
+Object.prototype === Object.getPrototypeOf( obj );              // true
+
+Object.prototype === Object.getPrototypeOf( {} );               // true
+```
+
+
+
 setPrototypeOf：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
 
-2、循环遍历对象属性的方法
+**Object.setPrototypeOf()** 方法设置一个指定的对象的原型 ( 即, 内部[[Prototype]]属性）到另一个对象或  [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)。
+
+**警告:** 由于现代 JavaScript 引擎优化属性访问所带来的特性的关系，更改对象的 `[[Prototype]]`在***各个***浏览器和 JavaScript 引擎上都是一个很慢的操作。其在更改继承的性能上的影响是微妙而又广泛的，这不仅仅限于 `obj.__proto__ = ...` 语句上的时间花费，而且可能会延伸到***任何***代码，那些可以访问***任何***`[[Prototype]]`已被更改的对象的代码。如果你关心性能，你应该避免设置一个对象的 `[[Prototype]]`。相反，你应该使用 [`Object.create()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create)来创建带有你想要的`[[Prototype]]`的新对象。
+
+
+
+**2、循环遍历对象属性的方法**
 
 遍历方法的区别：https://blog.csdn.net/zyz00000000/article/details/109204555
 
 包括：values和entries
 
-3、数据属性和访问器属性
+**3、数据属性和访问器属性**
 
 Object.defineProperty：https://blog.csdn.net/zyz00000000/article/details/106854845
 
@@ -312,6 +397,10 @@ getter和setter的探讨：
 
 
 4、ES5的操作对象，冻结、密封
+
+Object.freeze()冰冻一个对象，不能增删改。此外，冻结一个对象后该对象的原型也不能被修改。`freeze()` 返回和传入的参数相同的对象。
+
+但是对象的属性值是一个引用值，可以修改引用值的内容，除非该属性指向的引用值也是要一个冻结对象，才不可以修改。
 
 比如冻结对象：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 
@@ -331,7 +420,7 @@ getter和setter的探讨：
 
 - 让该对象的`__proto__`指向函数原型；
 
-- 让该对象作为this的上下文，即执行构造函数，this就是该对象；new操作符的this指向实例对象（对后续call和apply 实现bind的理解有帮助）
+- 让该对象作为this的上下文，即执行构造函数，this就是该对象；
 
 - 如果没有显式的返回一个对象，隐式的返回this；
 
@@ -370,7 +459,7 @@ Object.prototype.toString.call(function a(){})
 ```
 
 ```js
-Function.prototype.isPrototypeOf(fn) 如果fn是函数，结果true
+Function.prototype.isPrototypeOf(fn) //如果fn是函数，结果true
 ```
 
 
@@ -468,7 +557,9 @@ var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, argument
 
 **属性Symbol(Symbol.iterator)**
 
-**剩余参数、默认参数、解构赋值参数 与arguments的关系**
+
+
+**剩余参数、默认参数、解构赋值参数 与arguments的关系——ES6中特殊参数导致arguments与形参解绑 **
 
 实参传入的值，也同样会传给arguments。且不区分严格模式 。如果参数中，含有剩余参数、默认参数、解构赋值参数，那么，arguments和形参将失去捆绑关系，相互直接不再跟踪。
 
@@ -521,6 +612,18 @@ arguments与解构赋值参数。注意arguments是与实参对应关系
         foo('a','b','c')
 ```
 
+**箭头函数中的arguments呢？——继承父函数的 **
+
+```js
+         function a(){
+            var arr = ['a','b','c']
+            arr.forEach((itme, index) => {
+                console.log(arguments)//Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+            })
+         }
+         a(1,2,3)
+```
+
 
 
 **数组forEach内函数的this指向**
@@ -551,17 +654,37 @@ ES6箭头函数：**继承外层普通函数的this，——箭头函数特性**
 
 ### 箭头函数
 
-
+**特点：this、arguments、new.target都是继承父函数的。**
 
 参考：https://blog.csdn.net/zyz00000000/article/details/106719182
 
+
+
 ### this指向
-以下几个角度：
+
+**特点：**
+
+- 非严格模式下，函数执行this默认都是指向window；严格模式下，函数执行，this默认为undefined
+- 非严格模式下，call、apply、bind以及数组forEach、map、filter等遍历方法的thisArg，传undefined、null或者不传对象，this默认执行window，传入原始值，会被包装为包装类对象；严格模式下，不传值或传入undefined、null，this为undefined，传入原始值还是原始值，传入对象、数组 、函数还是他们本身。
+- 箭头函数的this是外层第一个普通函数的this
+
+
+
+**以下几个角度：**
 
 - new构造函数时，this指向
+
 - 严格模式和非严格模式下，函数执行时的this指向（此处说函数，却没有用方法这个词）
+
 - 箭头函数的this指向
+
 - vue实例钩子函数不能用箭头函数的原因
+
+- ES5数组方法forEach、map、filter、some、every等thisArg
+
+- ES5的访问器属性get和set方法中的this指向
+
+  
 
 非严格模式下，函数执行，默认指向window。注意实例中b函数执行的 this
 
@@ -808,25 +931,51 @@ apply函数中的this是函数，因为apply被函数调用，所以this是指�
 
 
 
+**访问器属性get和set方法的this指向：**
+
+谁调用了get或set方法，this就指向谁
+
+
+
 ### 严格模式和非严格模式
 
 1、arguments
 
-2、call 、apply
+2、call 、apply中的this
 
 3、数组ES5几个遍历方法，接收的第二个参数thisArg
 
+严格模式：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Strict_mode
 
 
-闭包
+
+### 闭包
+
+一个函数和对其周围状态（**lexical environment，词法环境**）的引用捆绑在一起（或者说函数被引用包围），这样的组合就是**闭包**（**closure**）。也就是说，闭包让你可以在一个内层函数中访问到其外层函数的作用域。在 JavaScript 中，每当创建一个函数，闭包就会在函数创建的同时被创建出来。——MDN
+
+
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures
+
+https://blog.csdn.net/zyz00000000/article/details/106643925
+
+https://blog.csdn.net/zyz00000000/article/details/111698319
 
 事件队列和事件循环
 
+
+
 with和eval
 
-运算符
+https://blog.csdn.net/zyz00000000/article/details/106626766
+
+
+
+new运算符
 
 地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
+
+
 
 操作符
 
@@ -840,11 +989,19 @@ setTimeout、clearTimeout、setInterval、clearInterval
 
 https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
 
+位操作符：
+
+https://developer.mozilla.org/zh-CN/docs/conflicting/Web/JavaScript/Reference/Operators_7c8eb9475d97a4a734c5991857698560#left_shift
+
 
 
 【jquery 】
 
 【Vue】
+
+vue的diff算法：https://github.com/aooy/blog/issues/2
+
+
 
 【node】【npm】
 
@@ -878,6 +1035,12 @@ npx、nrm
 
 3、== 和 ===
 
+4、vue和react中key的作用：https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/1
+
+5、防抖和节流：https://segmentfault.com/a/1190000018428170
+
+6、Object.setPrototypeOf()
+
 #### 实现继承的方式有哪些？
 
 Object.create方法
@@ -898,3 +1061,4 @@ https://blog.csdn.net/zyz00000000/article/details/108234447
 
 https://zhuanlan.zhihu.com/p/362868129
 
+https://juejin.cn/post/6844903885488783374
