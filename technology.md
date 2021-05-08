@@ -83,10 +83,73 @@ Number方法，得到的结果要么是数字，是NaN
 
 **`BigInt`** 是一种内置对象，它提供了一种方法来表示大于 `253 - 1` 的整数。这原本是 Javascript中可以用 [`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 表示的最大数字。**`BigInt`** 可以表示任意大的整数。
 
+不能让 BigInt 和 [`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 直接进行运算，你也不能用 [`Math`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math) 对象去操作 BigInt 数字。
+
 >  typeof 9007199254740991n
 > "bigint"
 > typeof 9n
 > "bigint"
+
+### js进制
+
+**十进制Decimal number**
+
+十进制可以以0开头，后面接其他十进制数字，但是假如0后面的十进制数字都 小于8，那么该数字将会被当做八进制处理。
+
+```js
+1234567890
+42
+// 以零开头的数字的注意事项：
+0888 // 888 将被当做十进制处理
+0777 // 在非严格格式下会被当做八进制处理 (用十进制表示就是511)
+```
+
+**二进制Binary number**
+
+二进制数字语法是以零为开头，后面接一个小写或大写的拉丁文字母B(`0b或者是0B`)。 假如0b后面的数字不是0或者1，那么就会提示这样的语法错误（ `SyntaxError）：` "Missing binary digits after 0b(0b之后缺失二有效的二进制数据)"。
+
+```js
+var FLT_SIGNBIT  = 0b10000000000000000000000000000000; // 2147483648
+var FLT_EXPONENT = 0b01111111100000000000000000000000; // 2139095040
+var FLT_MANTISSA = 0B00000000011111111111111111111111; // 8388607
+```
+
+**八进制Octal number**
+
+八进制数字语法是以0为开头的。假如0后面的数字不在0到7的范围内，该数字将会被转换成十进制数字。
+
+```js
+var n = 0755; // 493
+var m = 0644; // 420
+```
+
+在ECMAScript 5 严格模式下禁止使用八进制语法。八进制语法并不是ECMAScript 5规范的一部分，但是通过在八进制数字添加一个前缀0就可以被所有的浏览器支持：0644 === 420 而且 "\045" === "%"。在ECMAScript 6中使用八进制数字是需要给一个数字添加前缀"0o"。
+
+```js
+var a = 0o10; // ES6 :八进制
+```
+
+
+
+**十六进制：hexadecimal number**
+
+十六进制数字语法是以零为开头，后面接一个小写或大写的拉丁文字母X(`0x或者是0X`)。假如`0x`后面的数字超出规定范围(0123456789ABCDEF)，那么就会提示这样的语法错误(`SyntaxError)：`"Identifier starts immediately after numeric literal".
+
+```js
+0xFFFFFFFFFFFFFFFFF // 295147905179352830000
+0x123456789ABCDEF   // 81985529216486900
+0XA                 // 10
+```
+
+**指数形式：exponentiation**
+
+```js
+1E3   // 1000
+2e6   // 2000000
+0.1e2 // 10
+```
+
+**数字和日期**：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Numbers_and_dates
 
 ### 字符串String
 
@@ -129,6 +192,22 @@ reverse返回修改后的数组。
 slice 方法和字符串的slice方法一样；splice方法是slice方法进阶版。
 
 数组的indexOf和lastIndexOf 与字符串一样；数组也有includes方法，但兼容性不是特别好。
+
+示例：有这么一个判断，可能会有更多值，
+
+```js
+if (code === 10 || code === 15 || code === 25){
+....
+}
+```
+
+可以通过数组实现 ：
+
+```js
+if ([10, 25, 35, 50].includes(code))
+if ([10, 25, 35, 50].some(val => val === code))
+if ([10, 25, 35, 50].indexOf(code) !== -1)
+```
 
 
 
@@ -673,18 +752,15 @@ ES6箭头函数：**继承外层普通函数的this，——箭头函数特性**
 **以下几个角度：**
 
 - new构造函数时，this指向
-
 - 严格模式和非严格模式下，函数执行时的this指向（此处说函数，却没有用方法这个词）
-
 - 箭头函数的this指向
-
 - vue实例钩子函数不能用箭头函数的原因
-
 - ES5数组方法forEach、map、filter、some、every等thisArg
-
 - ES5的访问器属性get和set方法中的this指向
 
-  
+MDN的this：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this
+
+
 
 非严格模式下，函数执行，默认指向window。注意实例中b函数执行的 this
 
@@ -939,6 +1015,8 @@ apply函数中的this是函数，因为apply被函数调用，所以this是指�
 
 ### 严格模式和非严格模式
 
+严格模式可以应用到整个脚本或个别函数中。
+
 1、arguments
 
 2、call 、apply中的this
@@ -947,13 +1025,46 @@ apply函数中的this是函数，因为apply被函数调用，所以this是指�
 
 严格模式：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Strict_mode
 
+**特点：**
+
+严格模式对于静默错误会抛出异常；
+
+修复js引擎的执行优化缺陷，有时相同的代码，严格模式运行速度更快；
+
+严格模式禁用了ES未来版本可能用到的语法；
+
+**详细的说：**简化了 `eval` 以及 `arguments`；不能将意外创建全局变量；严格模式要求函数的参数名唯一；严格模式禁止八进制数字语法；禁用with；严格模式下的函数有改动：arguments、this；
+
+**浏览器对严格模式的支持：**主流浏览器现在实现了严格模式。但是不要盲目的依赖它，因为市场上仍然有大量的浏览器版本只部分支持严格模式或者根本就不支持（比如IE10之前的版本）。
+
+
+
+**关于八进制：**
+
+ ECMAScript并不包含八进制语法, 但所有的浏览器都支持这种以零(`0`)开头的八进制语法: `0644 === 420` 还有 `"\045" === "%"`.在ECMAScript 6中支持为一个数字加"`0`o"的前缀来表示八进制数.
+
+```
+var a = 0o10; // ES6: 八进制
+```
+
+有些新手开发者认为数字的前导零没有语法意义, 所以他们会用作对齐措施 — 但其实这会改变数字的意义! 八进制语法很少有用并且可能会错误使用, 所以严格模式下八进制语法会引起语法错误:
+
+```js
+"use strict";
+var sum = 015 + // !!! 语法错误
+          197 +
+          142;
+```
+
 
 
 ### 闭包
 
 一个函数和对其周围状态（**lexical environment，词法环境**）的引用捆绑在一起（或者说函数被引用包围），这样的组合就是**闭包**（**closure**）。也就是说，闭包让你可以在一个内层函数中访问到其外层函数的作用域。在 JavaScript 中，每当创建一个函数，闭包就会在函数创建的同时被创建出来。——MDN
 
+*闭包*是由函数以及声明该函数的词法环境组合而成的。该环境包含了这个闭包创建时作用域内的任何局部变量。
 
+性能：如果不是某些特定任务需要使用闭包，在其它函数中创建函数是不明智的，因为闭包在处理速度和内存消耗方面对脚本性能具有负面影响
 
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures
 
@@ -961,19 +1072,15 @@ https://blog.csdn.net/zyz00000000/article/details/106643925
 
 https://blog.csdn.net/zyz00000000/article/details/111698319
 
+
+
 事件队列和事件循环
 
 
 
-with和eval
+### with和eval
 
 https://blog.csdn.net/zyz00000000/article/details/106626766
-
-
-
-new运算符
-
-地址：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
 
 
 
@@ -981,13 +1088,162 @@ new运算符
 
 instanceof、typeof、
 
-正则表达式
+### 运算符
 
-JOSN字符串
 
-setTimeout、clearTimeout、setInterval、clearInterval
 
-https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
+| 运算类型                                       | 运算符                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| 圆括号                                         | ()                                                           |
+| 属性访问、计算属性访问、函数调用、new操作符    | `… . …`、`… [ … ]`、`… ( … )`、`new … ( … )`                 |
+| 后置递增、后置递减                             | `… ++`、`… --`                                               |
+| 逻辑非、一元加减、前置递增递减、typeof、wait   | `! …`、`+ …`、**`- …`**、`++ …`、**`-- …`**、`typeof …`、`await …` |
+| 幂运算\|乘除取余\|加减                         | **`… \** …`**   |         **`… \* …`**、**`… / …`**、**`… % …`**     |               **`… + …`**、**`… - …`** |
+| 大于、小于、大于等于、小于等于、in、instanceof | **`… > …`**、**`… < …`**、**`… >= …`**、**`… <= …`**、**`… in …`**、**`… instanceof …`** |
+| 等于、不等于、全等于、非全等于                 | **`… == …`**、**`… != …`**、**`… === …`**、**`… !== …`**     |
+| 逻辑与\|逻辑或\|三目运算符                     | &&    \|\|   **`… ? … : …`**                                 |
+| 赋值                                           | =、+=、-=、*=、/=、%=                                        |
+| 展开运算符                                     | ...                                                          |
+| 逗号运算符                                     | ,                                                            |
+
+
+
+**三目运算符（条件运算符）**
+
+执行顺序，执行条件的判断，根据true或false，执行对应的表达式
+
+查看文章：https://blog.csdn.net/zyz00000000/article/details/106278824
+
+运算符优先级 ：https://blog.csdn.net/zyz00000000/article/details/108345985
+
+
+
+### 正则表达式
+
+基础知识：https://blog.csdn.net/zyz00000000/article/details/106768089
+
+相关方法 ：https://blog.csdn.net/zyz00000000/article/details/107957777
+
+实例题目：https://blog.csdn.net/zyz00000000/article/details/89002939
+
+面试题目：https://blog.csdn.net/zyz00000000/article/details/108062090
+
+
+
+### JSON字符串
+
+ *JavaScript Object Notation* (**JSON**) 是一种**数据交换格式**。尽管不是严格意义上的子集，JSON 非常接近 [JavaScript](https://developer.mozilla.org/zh-CN/docs/Glossary/JavaScript) 语法的子集。
+
+许多编程语言都支持 JSON，尤其是 JavaScript，它在网站和浏览器扩展应用广泛。
+
+JSON 可以表示数字、布尔值、字符串、`null`、数组（有序序列），以及由这些值组成的对象（字符串与值的映射）。JSON 不支持复杂的数据类型（函数、正则表达式、日期等）。日期对象默认会转化为 ISO 格式的字符串，因此信息不会完全丢失。
+
+如果你需要使用 JSON 来表示复杂的数据类型，请在它们转化为字符串值。
+
+
+
+`JSON.stringify()`将值转换为相应的JSON格式：
+
+- 1、转换值如果有 toJSON() 方法，该方法定义什么值将被序列化。
+
+  
+
+- 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
+
+- 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
+
+- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如`JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
+
+- 对包含循环引用的对象（对象之间相互引用，形成无限循环）执行此方法，会抛出错误。
+
+- 所有以 symbol 为属性键的属性都会被完全忽略掉，即便 `replacer` 参数中强制指定包含了它们。
+
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。
+
+- NaN 和 Infinity 格式的数值及 null 都会被当做 null。
+
+- 其他类型的对象，包括 Map/Set/WeakMap/WeakSet，仅会序列化可枚举的属性。
+
+
+
+主要先讨论对象和数组的JSON字符串序列化：
+
+对象和数组共有特点：
+
+- 无视隐式属性，比如对象中的`__proto__`属性和数组中的length属性 
+- 布尔值、数字、字符串的包装类对象在序列化过程中，都会自动转换成原始值
+- NaN、Infinity数值和null，都会当做null处理
+- 数字、布尔值、null值，两侧不会被加双引号
+
+对象中：
+
+- 如果有toJSON方法，该方法定义什么值将被序列化
+
+  ```js
+  var obj = {
+      _a: 1,
+      toJSON: function(){
+          return 1;
+      }
+  }
+  console.log(JSON.stringify(obj)) //1
+  ```
+
+- 对象的属性不能保证序列化后的顺序
+
+- undefined、函数function、Symbol值，都会被忽略
+
+  ```js
+          var obj = {
+              a: function(){
+                  console.log('1')
+              },
+              b: undefined,
+              c: Symbol('m'),
+              d: NaN,
+              e: Infinity,
+              f: null,
+              g: ''
+          }
+          console.log(JSON.stringify(obj)) //{"d":null,"e":null,"f":null,"g":""}
+  ```
+
+- 对象之间相互引用（循环引用）会抛出错误
+- 所有以 symbol 为属性键的属性都会被完全忽略掉
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。
+
+数组中：
+
+- 数组中一切不可识别的数据类型，都会被处理为null——若忽略，数组长度发生变化，所以处理为null
+
+  ```js
+          let bool = [NaN, Symbol(), function () {}, undefined, Infinity]
+          console.log(JSON.stringify(bool))//[null,null,null,null,null]
+  ```
+
+
+
+MDN：https://developer.mozilla.org/zh-CN/docs/Glossary/JSON
+
+JSON对象：https://blog.csdn.net/zyz00000000/article/details/108221971
+
+https://blog.csdn.net/zyz00000000/article/details/112219027
+
+
+
+### setTimeout、clearTimeout、setInterval、clearInterval
+
+
+
+MDN：https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
+
+### requestAnimationFrame
+
+
+
+MDN：https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFram
+
+
 
 位操作符：
 
@@ -1040,6 +1296,8 @@ npx、nrm
 5、防抖和节流：https://segmentfault.com/a/1190000018428170
 
 6、Object.setPrototypeOf()
+
+7、闭包影响性能，造成内存泄漏
 
 #### 实现继承的方式有哪些？
 
