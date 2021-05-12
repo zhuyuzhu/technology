@@ -1003,7 +1003,7 @@ apply函数中的this是函数，因为apply被函数调用，所以this是指�
 
 
 
-剩余参数、默认参数、解构赋值参数
+###  剩余参数、默认参数、解构赋值参数
 
 
 
@@ -1239,9 +1239,47 @@ MDN：https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope
 
 ### requestAnimationFrame
 
+**`window.requestAnimationFrame()`** 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行。
+
+> **注意：若你想在浏览器下次重绘之前继续更新下一帧动画，那么回调函数自身必须再次调用`window.requestAnimationFrame()`**
+
+语法：
+
+```js
+window.requestAnimationFrame(callback);
+```
+
+参数：callback
+
+下一次重绘之前更新动画帧所调用的函数(即上面所说的回调函数)。
 
 
-MDN：https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFram
+
+返回值：一个 `long` 整数，请求 ID ，是回调列表中唯一的标识。是个非零值，没别的意义。你可以传这个值给 [`window.cancelAnimationFrame()`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/cancelAnimationFrame) 以取消回调函数。
+
+优点：`requestAnimationFrame`***最大的优势是由浏览器来决定回调函数的执行时机，即紧跟浏览器的刷新步调。\***
+
+CPU节能：使用setTimeout实现的动画，当页面被隐藏（隐藏的<iframe>）或最小化（后台标签页）时，setTimeout仍然在后台执行动画任务，由于此时页面处于不可见或不可用状态，刷新动画是没有意义的，而且还浪费 CPU 资源和电池寿命。而requestAnimationFrame则完全不同，当页面处于未激活的状态下，该页面的屏幕绘制任务也会被浏览器暂停，因此跟着浏览器步伐走的requestAnimationFrame也会停止渲染，当页面被激活时，动画就从上次停留的地方继续执行，有效节省了 CPU 开销，提升性能和电池寿命。
+
+60Hz 75Hz
+
+
+
+setTImeOut实现requestAnimationFrame
+
+https://github.com/darius/requestAnimationFrame/blob/master/requestAnimationFrame.js
+
+
+
+MDN：https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame
+
+https://www.cnblogs.com/onepixel/p/7078617.html
+
+自己的文章：https://blog.csdn.net/zyz00000000/article/details/82759641
+
+
+
+关于动画的总结：https://blog.51cto.com/u_15091652/2603280
 
 
 
@@ -1270,6 +1308,8 @@ npx、nrm
 【websocket】【cometd】
 
 【gulp】【webpack】
+
+
 
 【Linux】【shell】
 
@@ -1320,3 +1360,403 @@ https://blog.csdn.net/zyz00000000/article/details/108234447
 https://zhuanlan.zhihu.com/p/362868129
 
 https://juejin.cn/post/6844903885488783374
+
+
+
+## ES6
+
+### let和const
+
+let声明变量、const声明常量，都会形成块级作用域，
+
+下面实例：Object.freeze和const都是无法修改引用值的地址，但可以该地址内容值
+
+```js
+        let arr = [1,2,3]
+        const obj = {
+            a: arr,
+            b: 'str'
+        }
+        obj.a[0] = 'a';
+        console.log(obj); //打印的是地址最终的值：{a: ["b", 2, 3], b: "str"}，console的特点
+        Object.freeze(obj); //和const无区别
+        obj.a[0] = 'b';
+```
+
+除非把对象内的所有的引用值都冰冻住，这样才实现正真的常量无法被修改值的效果：——项目中可以通过递归写一个绝对常量的函数
+
+```js
+        let arr = [1,2,3]
+        const obj = {
+            a: arr,
+            b: 'str'
+        }
+        Object.freeze(obj.a);
+        obj.a[0] = 'b';
+        console.log(obj) //{a:[1, 2, 3], b: "str"}
+```
+
+### Symbol
+
+Symbol()函数每次执行创建一个唯一的Symbol值，接收的参数作为描述
+
+```js
+Symbol("foo") === Symbol("foo"); // false
+```
+
+Symbol 作为属性名，遍历对象的时候，该属性不会出现在`for...in`、`for...of`循环中，也不会被`Object.keys()`、`Object.getOwnPropertyNames()`、`JSON.stringify()`返回。有一个`Object.getOwnPropertySymbols()`方法，可以获取指定对象的所有 Symbol 属性名
+
+Symbol函数上有两个静态方法 ：Symbol.for() 和 Symbol.keyFor()
+
+`Symbol.for()`不会每次调用就返回一个新的 Symbol 类型的值，而是会先检查给定的`key`是否已经存在，如果有，就返回这个 Symbol 值，否则就新建一个以该字符串为名称的 Symbol 值，并**将其注册到全局**。
+
+所以Symbol.for根据描述符来区别 是否是相同的Symbol值，
+
+```js
+        let sym1 = Symbol.for('foo');
+        let sym2 = Symbol.for('foo');
+        sym1 === sym2 // true
+```
+
+`**Symbol.keyFor(sym)**` 方法用来获取 **symbol 注册表中**某个 **symbol 关联的键**
+
+```js
+        let sym1 = Symbol.for('foo');
+        let sym2 = Symbol.for('bar');
+        console.log(Symbol.keyFor(sym1),Symbol.keyFor(sym2)); foo bar
+```
+
+
+
+CSDN:https://blog.csdn.net/zyz00000000/article/details/106922044
+
+
+
+### Set和Map
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107209326
+
+Set 对象允许你存储任何类型的唯一值，无论是原始值或者是对象引用。
+
+Set对象是值的集合，你可以按照插入的顺序迭代它的元素。 Set中的元素只会出现一次，即 Set 中的元素是唯一的。
+
+在 ECMAScript 2015规范中-0  0  +0 是完全相等的。
+
+NaN和undefined都可以被存储在Set 中， NaN之间被视为相同的值（NaN被认为是相同的，尽管 NaN !== NaN）。
+
+Number.POSITIVE_INFINITY 和 Infinity都表示正无穷数，是相同的值。
+
+引用值地址不能相同，原始值不能相等，这才能确保值的唯一性。
+
+
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107203800
+
+Map和对象的重要区别：
+
+- Map中的key可以是任意数据类型，而对象中的key是字符串或Symbol类型；
+- Map中的key是有顺序的，对象的属性是无序的；
+- Map是iterable（可迭代的），可以直接通过for of迭代，而对象需要先获取属性，然后才能迭代 
+- 性能方面，在频繁增删键值对的情况下Map表现良好
+
+
+
+关于同一个键，Map和Set的相等规则相同
+
+
+
+
+
+### 1、解构赋值
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107629419
+
+解构对象会查找原型链；ES6中只要某种数据有Iterator接口（也就是可以循环迭代 Iterable对象），都可以进行数组的解构赋值；
+
+### 2、函数的解构赋值、默认参数、剩余参数
+
+解构赋值：形参是一个对象或数组，通过解构赋值，接收一个对象或者数组，从而给形参赋值
+
+```js
+function userId({id}) {
+  return id;
+}
+ 
+function whois({displayName, fullName: {firstName: name}}){
+  console.log(displayName + " is " + name);
+}
+ 
+var user = { 
+  id: 42, 
+  displayName: "jdoe",
+  fullName: { 
+      firstName: "John",
+      lastName: "Doe"
+  }
+};
+ 
+console.log("userId: " + userId(user)); // "userId: 42"
+whois(user); // "jdoe is John"
+```
+
+默认参数
+
+剩余参数：
+
+剩余参数得到一个数组——**剩余参数**语法允许我们将一个不定数量的参数表示为一个数组。
+
+```js
+        function a(m,...n){
+            console.log(arguments) //Arguments(4) [1, 2, 3, 4, callee: (...), Symbol(Symbol.iterator): ƒ]
+            console.log(m,n) //1  [2, 3, 4]
+        }
+        a(1,2,3,4)
+```
+
+注意 ：回顾arguments篇章，arguments不是从形参中获取数据，他和形参一样，都是从实参中获取数据。
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/106677352
+
+### 3、箭头函数
+
+箭头函数没有自己的this、arguments、new.target、super
+
+箭头函数的this：
+
+箭头函数没有自己的this，它继承的是外层第一个非箭头函数的this，我们知道在非严格模式下，普通函数的this指向window，而在严格模式下this是undefined。
+
+箭头函数没有自己的this指针，通过 `call()` *、* `apply()或bind（）` 方法调用一个函数时，只能传递参数，不能绑定this，他们的第一个参数会被忽略。
+
+
+
+### 4、class类
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107000066
+
+类和构造函数的区别：
+
+类的声明不会提升；必须用new来调用，否则会报错；类原型上的constructor属性指向类本身；
+
+
+
+注意static声明的静态方法、get和set设置的属性
+
+可以通过get和set定义class类上的属性：
+
+```js
+    class Foo {
+        constructor(){
+            this.a = 1;
+            this.b = 2;
+        }
+        func1(){
+            console.log("func1");
+        }
+        func2(){
+            console.log("func2");
+        }
+        get prop(){
+            return this.b
+        }
+        set prop(value){
+            this.b = value;
+        }
+    }
+    var foo = new Foo();
+    foo.prop = 10;//实例可以通过get set设置原型上的属性
+    console.log(foo)
+    console.log(Object.getOwnPropertyNames(foo));
+```
+
+类的静态方法：非静态方法可以被实例继承，而静态方法是供类使用，不被实例继承。——static关键词
+
+```js
+    class Foo {
+        constructor(){
+            this.a = 1;
+            this.b = 2;
+            Foo.func2();
+        }
+        func1(){
+            console.log("func1");
+        }
+        static func2(){
+            console.log(this);//this指向Foo，静态方法供类在内部使用
+        }
+    }
+    var foo = new Foo();
+    console.log(foo);
+```
+
+类的静态属性：直接在类上赋值属性
+
+```js
+Foo.prop1 = 11; 静态属性
+Foo.prop2 = 22; 静态属性
+```
+
+
+
+**区分：类、类原型、实例对象**
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/109577189
+
+（1）实例对象foo
+
+constructor构造函数内this上的属性和方法； constructor外的属性——类结构体内声明的属性；
+
+（2）原型Foo.prototype（属性和方法都不可遍历）
+
+类结构体内声明的方法；类结构体内通过getter和setter声明的属性；
+
+（3）类Foo
+
+类结构体通过static关键词申明的方法；类外部通过Foo. 或Foo[]的形式申明的属性或方法
+
+
+**类的继承**
+
+class、extends和super关键词
+
+```js
+    class Foo {
+        constructor(){
+            this.a = 1;
+        }
+        func1(){
+            console.log("func1");
+        }
+    }
+    class Bar extends Foo{
+        constructor(){
+            super();
+            this.b = 2;
+        }
+        func2(){
+            console.log("func2");
+        }
+    }
+    var bar = new Bar();
+    console.log(bar);
+```
+
+
+
+继承：子类 继承了父类 上的静态属性和方法；子类实例对象new时获取了父类constructor相关内容，同时子类实例对象的原型链上有子类原型，子类原型继承了父类原型的对象和方法
+
+#### super
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107078428
+
+super存在于：constructor中、普通方法中、static静态方法中，有不同的意义，该意义取决于所在函数的归属，
+
+constructor属于new时构造实例对象的，
+
+- super()执行代表，父类constructor执行，获取this实例；
+- super赋值，super.a = 1，代表给this实例赋值
+- super取值，super.b，代表父类原型上读取值
+
+在子类的普通方法中，super代表父类原型，因为普通方法在类原型上
+
+在static静态方法中，super代表父类，因为静态方法是类上的方法
+
+
+
+## 迭代
+
+###  for of
+
+CSDN：https://blog.csdn.net/zyz00000000/article/details/107226489
+
+
+
+### 迭代协议
+
+**可迭代协议——规定可迭代对象是什么样的**
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols
+
+默认情况下可迭代的数据类型都是有序的，比如Array、String、Map、Set、arguments。而对象Object是无须，不可迭代。
+
+**可迭代**对象， 必须实现 `**@@iterator**` 方法，可以通过Symbol.iterator属性来访问该方法。该方法是一个无参的函数，返回值是一个符合迭代器的对象。
+
+```js
+        var str = 'abc'; //str是一个iterable
+        var strIterator = str[Symbol.iterator]() //得到一个iterator对象
+        console.log(strIterator) //迭代器对象，需通过next方法获取值
+        console.log(strIterator.next()) //{value: "a", done: false}
+```
+
+当一个对象需要被迭代的时候（比如被置入一个 [`for...of`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for...of) 循环时），首先，会不带参数调用它的 `@@iterator` 方法，然后使用此方法返回的**迭代器**获得要迭代的值。——通过[Symbol.iterator]属性 调用@@iterator方法，得到迭代器对象，然后通过迭代器获取要迭代的值。
+
+
+
+**迭代器协议 ——规定迭代器对象应该是什么 样的** 
+
+**迭代器协议**定义了产生一系列值，无论是有限个还是无限个。当值为有限个时，所有的值都被迭代完毕后，则会返回一个默认返回值。
+
+必须实现一个next方法，才能是一个迭代器对象。
+
+next方法一个无参数函数，返回一个应当拥有以下两个属性的对象：
+
+- `done`（boolean）
+
+  如果迭代器可以产生序列中的下一个值，则为 `false`。（这等价于没有指定 `done` 这个属性。）如果迭代器已将序列迭代完毕，则为 `true`。这种情况下，`value` 是可选的，如果它依然存在，即为迭代结束之后的默认返回值。
+
+- `value`
+
+  迭代器返回的任何 JavaScript 值。done 为 true 时可省略。
+
+`next()` 方法必须返回一个对象，该对象应当有两个属性： `done` 和 `value`，如果返回了一个非对象值（比如 `false` 或 `undefined`），则会抛出一个 [`TypeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) 异常（`"iterator.next() returned a non-object value"`）
+
+**备注：**不可能判断一个特定的对象是否实现了迭代器协议，然而，创造一个*同时*满足迭代器协议和可迭代协议的对象是很容易的（如下面的示例中所示）。
+
+这样做允许一个迭代器能被各种需要可迭代对象的语法所使用。因此，很少会只实现迭代器协议，而不实现可迭代协议。
+
+```
+var myIterator = {
+    next: function() {
+        // ...
+    },
+    [Symbol.iterator]: function() { return this }
+}
+```
+
+
+
+### Generator生成器对象
+
+https://blog.csdn.net/zyz00000000/article/details/107496018
+
+生成器对象是由一个generator 函数产生的，符合可迭代协议和迭代器协议 ，同时是可迭代对象和迭代器对象
+
+
+
+
+
+##  Promise、async和await
+
+### Promise
+
+https://blog.csdn.net/zyz00000000/article/details/107386314
+
+### async和await
+
+https://blog.csdn.net/zyz00000000/article/details/107427989
+
+
+
+https://blog.csdn.net/zyz00000000/article/details/116136668
+
+
+
+### Proxy和Reflect
+
+https://blog.csdn.net/zyz00000000/article/details/107345459
+
+https://blog.csdn.net/zyz00000000/article/details/109598116
+
+
+
+MDN：Proxy：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+
