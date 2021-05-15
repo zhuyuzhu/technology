@@ -8,7 +8,21 @@ https://juejin.cn/post/6844903885488783374#heading-111
 
 没有绑定key的情况下，在遍历简单模板时，对比虚拟dom的新旧 节点会更快，节点也会就地复用。副作用，可能不会产生过渡效果，绑定数据会出现错位，这个模式虽然高效，但只适用不依赖子组件状态或临时dom状态的列表渲染。
 
-而key的作用，给每个虚拟dom添加唯一的id，在diff算法对比新旧虚拟dom时，可以通过key更加快速精准的找到旧的虚拟dom节点，
+而key的作用，给每个虚拟dom添加唯一的id，在diff算法对比新旧虚拟dom时，可以通过key更加快速精准的找到旧的虚拟dom节点。
+
+### Virtual DOM 真的比操作原生 DOM 快吗？谈谈你的想法。
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/47
+
+### 为什么 Vuex 的 mutation 和 Redux 的 reducer 中不能做异步操作？
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/65
+
+### 在 Vue 中，子组件为何不可以修改父组件传递的 Prop
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/60
+
+
 
 ### `['1', '2', '3'].map(parseInt)` what & why ?
 
@@ -157,6 +171,106 @@ console.log([...DFS(tree)])
 
 
 大佬文章：https://github.com/yygmind/blog/issues/31
+
+### 请分别用深度优先思想和广度优先思想实现一个拷贝函数
+
+```js
+// 工具函数
+let _toString = Object.prototype.toString
+let map = {
+  array: 'Array',
+  object: 'Object',
+  function: 'Function',
+  string: 'String',
+  null: 'Null',
+  undefined: 'Undefined',
+  boolean: 'Boolean',
+  number: 'Number'
+}
+let getType = (item) => {
+  return _toString.call(item).slice(8, -1)
+}
+let isTypeOf = (item, type) => {
+  return map[type] && map[type] === getType(item)
+}
+```
+
+#### 深复制 深度优先遍历
+
+```js
+let DFSdeepClone = (obj, visitedArr = []) => {
+  let _obj = {}
+  if (isTypeOf(obj, 'array') || isTypeOf(obj, 'object')) {
+    let index = visitedArr.indexOf(obj)
+    _obj = isTypeOf(obj, 'array') ? [] : {}
+    if (~index) { // 判断环状数据
+      _obj = visitedArr[index]
+    } else {
+      visitedArr.push(obj)
+      for (let item in obj) {
+        _obj[item] = DFSdeepClone(obj[item], visitedArr)
+      }
+    }
+  } else if (isTypeOf(obj, 'function')) {
+    _obj = eval('(' + obj.toString() + ')');
+  } else {
+    _obj = obj
+  }
+  return _obj
+}
+```
+
+#### 广度优先遍历
+
+```js
+let BFSdeepClone = (obj) => {
+    let origin = [obj],
+      copyObj = {},
+      copy = [copyObj]
+      // 去除环状数据
+    let visitedQueue = [],
+      visitedCopyQueue = []
+    while (origin.length > 0) {
+      let items = origin.shift(),
+        _obj = copy.shift()
+      visitedQueue.push(items)
+      if (isTypeOf(items, 'object') || isTypeOf(items, 'array')) {
+        for (let item in items) {
+          let val = items[item]
+          if (isTypeOf(val, 'object')) {
+            let index = visitedQueue.indexOf(val)
+            if (!~index) {
+              _obj[item] = {}
+                //下次while循环使用给空对象提供数据
+              origin.push(val)
+                // 推入引用对象
+              copy.push(_obj[item])
+            } else {
+              _obj[item] = visitedCopyQueue[index]
+              visitedQueue.push(_obj)
+            }
+          } else if (isTypeOf(val, 'array')) {
+            // 数组类型在这里创建了一个空数组
+            _obj[item] = []
+            origin.push(val)
+            copy.push(_obj[item])
+          } else if (isTypeOf(val, 'function')) {
+            _obj[item] = eval('(' + val.toString() + ')');
+          } else {
+            _obj[item] = val
+          }
+        }
+        // 将已经处理过的对象数据推入数组 给环状数据使用
+        visitedCopyQueue.push(_obj)
+      } else if (isTypeOf(items, 'function')) {
+        copyObj = eval('(' + items.toString() + ')');
+      } else {
+        copyObj = obj
+      }
+    }
+  return copyObj
+}
+```
 
 ### ES5/ES6 的继承除了写法以外还有什么区别？
 
@@ -591,9 +705,67 @@ Promise构造函数是同步执行的，then方法是异步执行的
 
 ### Json web token (JWT)原理、cookie+session的区别 和对应的攻击
 
+JWT：认证机制，让服务端知道这是受认证的用户
+
+JWT由服务端的authentication server认证服务器生成，且返回给客户端；客户端每次访问都要带上该JWT传给application server 应用服务器，
+
+格式：由三部分组成，header、payload、signature（签名 ）
+
+header包含信息：JWT类型、加密算法类型
+
+payload包含：用户信息、一些数据；
+
+signature：签名，通过算法生成的一个能够认证的字符串 
+
+最后再解释一下application server如何认证用户发来的JWT是否合法，首先application server 和 authentication server必须要有个约定，例如双方同时知道加密用的secret（这里假设用的就是简单的对称加密算法），那么在applicaition 收到这个JWT是，就可以利用JWT前两段（别忘了JWT是个三段的拼成的字符串哦）数据作为输入，用同一套hash算法和同一个secret自己计算一个签名值，然后把计算出来的签名值和收到的JWT第三段比较，如果相同则认证通过，如果不相同，则认证不通过。就这么简单，当然，上面是假设了这个hash算法是对称加密算法,其实如果用非对称加密算法也是可以的，比方说我就用非对称的算法，那么对应的key就是一对，而非一个，那么一对公钥+私钥可以这样分配：私钥由authentication server保存，公钥由application server保存，application server验证的时候，用公钥解密收到的signature,这样就得到了header和payload的拼接值，用这个拼接值跟前两段比较，相同就验证通过。总之，方法略不同，但大方向完全一样。
+
+提两个best practice:
+
+1. 发送JWT要用https，原因前面说了，JWT本身不保证数据安全
+
+ 2.JWT的payload中设置expire时间，为什么要这样做其实跟cookie为什么要设置过期时间一样，都是为了安全。
+
+参考文章：https://www.cnblogs.com/cxxtreasure/p/14173315.html
+
+token有效期：https://my.oschina.net/odetteisgorgeous/blog/1920762
 
 
 
+CSRF（Cross-site request forgery），中文名称：跨站请求伪造
+
+![img](https://pic002.cnblogs.com/img/hyddd/200904/2009040916453171.jpg)
+
+
+
+如果已知的伪造请求是get请求，那么可以直接使用img或iframe的src属性去发送请求。
+
+如果是post请求：
+
+
+
+
+
+CRSF防御 ：
+
+1、表单中增加一个hash值，hash值有客户端请求服务端页面时生成的随机值，该值不可能被第三方伪造。
+
+```php
+　　<?php
+　　　　$hash = md5($_COOKIE['cookie']);
+　　?>
+　　<form method=”POST” action=”transfer.php”>
+　　　　<input type=”text” name=”toBankId”>
+　　　　<input type=”text” name=”money”>
+　　　　<input type=”hidden” name=”hash” value=”<?=$hash;?>”>
+　　　　<input type=”submit” name=”submit” value=”Submit”>
+　　</form>
+```
+
+参考：https://www.cnblogs.com/lr393993507/p/9834856.html
+
+### cookie 和 token 都存放在 header 中，为什么不会劫持 token？
+
+https://juejin.cn/post/6844903885488783374#heading-111
 
 
 
@@ -655,4 +827,563 @@ TCP三次握手：1、客户端发送syn包到服务器，等待服务器确认�
 
 在`TIME_WAIT`状态时两端的端口不能使用，要等到`2MSL`时间结束才可继续使用。
 当连接处于`2MSL`等待阶段时任何迟到的报文段都将被丢弃。不过在实际应用中可以通过设置`SO_REUSEADDR`选项达到不必等待2MSL时间结束再使用此端口。
+
+### 简单讲解一下http2的多路复用
+
+HTTP2采用二进制格式传输，取代了HTTP1.x的文本格式，二进制格式解析更高效。
+多路复用代替了HTTP1.x的序列和阻塞机制，所有的相同域名请求都通过同一个TCP连接并发完成。在HTTP1.x中，并发多个请求需要多个TCP连接，浏览器为了控制资源会有6-8个TCP连接都限制。
+HTTP2中
+
+- 同域名下所有通信都在单个连接上完成，消除了因多个 TCP 连接而带来的延时和内存消耗。
+- 单个连接上可以并行交错的请求和响应，之间互不干扰
+
+### HTTP1.0、 HTTP1.1 、HTTP2.0的区别
+
+在 HTTP/1 中，每次请求都会建立一次HTTP连接，也就是我们常说的3次握手4次挥手，这个过程在一次请求过程中占用了相当长的时间，即使开启了 Keep-Alive ，解决了多次连接的问题，但是依然有两个效率上的问题：
+
+- 第一个：串行的文件传输。当请求a文件时，b文件只能等待，等待a连接到服务器、服务器处理文件、服务器返回文件，这三个步骤。我们假设这三步用时都是1秒，那么a文件用时为3秒，b文件传输完成用时为6秒，依此类推。（注：此项计算有一个前提条件，就是浏览器和服务器是单通道传输）
+- 第二个：连接数过多。我们假设Apache设置了最大并发数为300，因为浏览器限制，浏览器发起的最大请求数为6，也就是服务器能承载的最高并发为50，当第51个人访问时，就需要等待前面某个请求处理完成。
+
+HTTP/2的多路复用就是为了解决上述的两个性能问题。
+在 HTTP/2 中，有两个非常重要的概念，分别是帧（frame）和流（stream）。
+帧代表着最小的数据单位，每个帧会标识出该帧属于哪个流，流也就是多个帧组成的数据流。
+多路复用，就是在一个 TCP 连接中可以存在多条流。换句话说，也就是可以发送多个请求，对端可以通过帧中的标识知道属于哪个请求。通过这个技术，可以避免 HTTP 旧版本中的队头阻塞问题，极大的提高传输性能。
+
+参考文章：https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/14
+
+### http和https的区别
+
+HTTP协议传输的数据都是未加密的，也就是明文的，因此使用HTTP协议传输隐私信息非常不安全，为了保证这些隐私数据能加密传输，于是网景公司设计了SSL（Secure Sockets Layer）协议用于对HTTP协议传输的数据进行加密，从而就诞生了HTTPS。简单来说，HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全。
+
+　　HTTPS和HTTP的区别主要如下：
+
+　　1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。
+
+　　2、http是超文本传输协议，信息是明文传输，https则是具有安全性的ssl加密传输协议。
+
+　　3、http和https使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。
+
+　　4、http的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比http协议安全
+
+参考文章：https://www.cnblogs.com/wqhwe/p/5407468.html
+
+### 有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
+
+> Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
+
+#### 1. Object.prototype.toString.call()
+
+每一个继承 Object 的对象都有 `toString` 方法，如果 `toString` 方法没有重写的话，会返回 `[Object type]`，其中 type 为对象的类型。但当除了 Object 类型的对象外，其他类型直接使用 `toString` 方法时，会直接返回都是内容的字符串，所以我们需要使用call或者apply方法来改变toString方法的执行上下文。
+
+```
+const an = ['Hello','An'];
+an.toString(); // "Hello,An"
+Object.prototype.toString.call(an); // "[object Array]"
+```
+
+这种方法对于所有基本的数据类型都能进行判断，即使是 null 和 undefined 。
+
+```
+Object.prototype.toString.call('An') // "[object String]"
+Object.prototype.toString.call(1) // "[object Number]"
+Object.prototype.toString.call(Symbol(1)) // "[object Symbol]"
+Object.prototype.toString.call(null) // "[object Null]"
+Object.prototype.toString.call(undefined) // "[object Undefined]"
+Object.prototype.toString.call(function(){}) // "[object Function]"
+Object.prototype.toString.call({name: 'An'}) // "[object Object]"
+```
+
+`Object.prototype.toString.call()` 常用于判断浏览器内置对象时。
+
+更多实现可见 [谈谈 Object.prototype.toString](https://juejin.im/post/591647550ce4630069df1c4a)
+
+#### 2. instanceof
+
+`instanceof` 的内部机制是通过判断对象的原型链中是不是能找到类型的 `prototype`。
+
+使用 `instanceof`判断一个对象是否为数组，`instanceof` 会判断这个对象的原型链上是否会找到对应的 `Array` 的原型，找到返回 `true`，否则返回 `false`。
+
+```
+[]  instanceof Array; // true
+```
+
+但 `instanceof` 只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
+
+```
+[]  instanceof Object; // true
+```
+
+#### 3. Array.isArray()
+
+- 功能：用来判断对象是否为数组
+
+- instanceof 与 isArray
+
+  当检测Array实例时，`Array.isArray` 优于 `instanceof` ，因为 `Array.isArray` 可以检测出 `iframes`
+
+  ```
+  var iframe = document.createElement('iframe');
+  document.body.appendChild(iframe);
+  xArray = window.frames[window.frames.length-1].Array;
+  var arr = new xArray(1,2,3); // [1,2,3]
+  
+  // Correctly checking for Array
+  Array.isArray(arr);  // true
+  Object.prototype.toString.call(arr); // true
+  // Considered harmful, because doesn't work though iframes
+  arr instanceof Array; // false
+  ```
+
+- `Array.isArray()` 与 `Object.prototype.toString.call()`
+
+  `Array.isArray()`是ES5新增的方法，当不存在 `Array.isArray()` ，可以用 `Object.prototype.toString.call()` 实现。
+
+  ```
+  if (!Array.isArray) {
+    Array.isArray = function(arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]';
+    };
+  }
+  ```
+
+### 介绍下重绘和回流（Repaint & Reflow），以及如何进行优化
+
+#### 1. 浏览器渲染机制
+
+- 浏览器采用流式布局模型（`Flow Based Layout`）
+- 浏览器会把`HTML`解析成`DOM`，把`CSS`解析成`CSSOM`，`DOM`和`CSSOM`合并就产生了渲染树（`Render Tree`）。
+- 有了`RenderTree`，我们就知道了所有节点的样式，然后计算他们在页面上的大小和位置，最后把节点绘制到页面上。
+- 由于浏览器使用流式布局，对`Render Tree`的计算通常只需要遍历一次就可以完成，**但`table`及其内部元素除外，他们可能需要多次计算，通常要花3倍于同等元素的时间，这也是为什么要避免使用`table`布局的原因之一**。
+
+#### 2. 重绘
+
+由于节点的几何属性发生改变或者由于样式发生改变而不会影响布局的，称为重绘，例如`outline`, `visibility`, `color`、`background-color`等，重绘的代价是高昂的，因为浏览器必须验证DOM树上其他节点元素的可见性。
+
+#### 3. 回流/重排
+
+回流是布局或者几何属性需要改变就称为回流。回流是影响浏览器性能的关键因素，因为其变化涉及到部分页面（或是整个页面）的布局更新。一个元素的回流可能会导致了其所有子元素以及DOM中紧随其后的节点、祖先节点元素的随后的回流。
+
+```
+<body>
+<div class="error">
+    <h4>我的组件</h4>
+    <p><strong>错误：</strong>错误的描述…</p>
+    <h5>错误纠正</h5>
+    <ol>
+        <li>第一步</li>
+        <li>第二步</li>
+    </ol>
+</div>
+</body>
+```
+
+在上面的HTML片段中，对该段落(`<p>`标签)回流将会引发强烈的回流，因为它是一个子节点。这也导致了祖先的回流（`div.error`和`body` – 视浏览器而定）。此外，`<h5>`和`<ol>`也会有简单的回流，因为其在DOM中在回流元素之后。**大部分的回流将导致页面的重新渲染。**
+
+**回流必定会发生重绘，重绘不一定会引发回流。**
+
+#### 4. 浏览器优化
+
+现代浏览器大多都是通过队列机制来批量更新布局，浏览器会把修改操作放在队列中，至少一个浏览器刷新（即16.6ms）才会清空队列，但当你**获取布局信息的时候，队列中可能有会影响这些属性或方法返回值的操作，即使没有，浏览器也会强制清空队列，触发回流与重绘来确保返回正确的值**。
+
+主要包括以下属性或方法：
+
+- `offsetTop`、`offsetLeft`、`offsetWidth`、`offsetHeight`
+- `scrollTop`、`scrollLeft`、`scrollWidth`、`scrollHeight`
+- `clientTop`、`clientLeft`、`clientWidth`、`clientHeight`
+- `width`、`height`
+- `getComputedStyle()`
+- `getBoundingClientRect()`
+
+所以，我们应该避免频繁的使用上述的属性，他们都会强制渲染刷新队列。
+
+#### 5. 减少重绘与回流
+
+1. CSS
+
+   - **使用 `transform` 替代 `top`**
+
+   - **使用 `visibility` 替换 `display: none`** ，因为前者只会引起重绘，后者会引发回流（改变了布局
+
+   - **避免使用`table`布局**，可能很小的一个小改动会造成整个 `table` 的重新布局。
+
+   - **尽可能在`DOM`树的最末端改变`class`**，回流是不可避免的，但可以减少其影响。尽可能在DOM树的最末端改变class，可以限制了回流的范围，使其影响尽可能少的节点。
+
+   - **避免设置多层内联样式**，CSS 选择符**从右往左**匹配查找，避免节点层级过多。
+
+     ```
+     <div>
+       <a> <span></span> </a>
+     </div>
+     <style>
+       span {
+         color: red;
+       }
+       div > a > span {
+         color: red;
+       }
+     </style>
+     ```
+
+     对于第一种设置样式的方式来说，浏览器只需要找到页面中所有的 `span` 标签然后设置颜色，但是对于第二种设置样式的方式来说，浏览器首先需要找到所有的 `span` 标签，然后找到 `span` 标签上的 `a` 标签，最后再去找到 `div` 标签，然后给符合这种条件的 `span` 标签设置颜色，这样的递归过程就很复杂。所以我们应该尽可能的避免写**过于具体**的 CSS 选择器，然后对于 HTML 来说也尽量少的添加无意义标签，保证**层级扁平**。
+
+   - **将动画效果应用到`position`属性为`absolute`或`fixed`的元素上**，避免影响其他元素的布局，这样只是一个重绘，而不是回流，同时，控制动画速度可以选择 `requestAnimationFrame`，详见[探讨 requestAnimationFrame](https://github.com/LuNaHaiJiao/blog/issues/30)。
+
+   - **避免使用`CSS`表达式**，可能会引发回流。
+
+   - **将频繁重绘或者回流的节点设置为图层**，图层能够阻止该节点的渲染行为影响别的节点，例如`will-change`、`video`、`iframe`等标签，浏览器会自动将该节点变为图层。
+
+   - **CSS3 硬件加速（GPU加速）**，使用css3硬件加速，可以让`transform`、`opacity`、`filters`这些动画不会引起回流重绘 。但是对于动画的其它属性，比如`background-color`这些，还是会引起回流重绘的，不过它还是可以提升这些动画的性能。
+
+2. JavaScript
+
+   - **避免频繁操作样式**，最好一次性重写`style`属性，或者将样式列表定义为`class`并一次性更改`class`属性。
+   - **避免频繁操作`DOM`**，创建一个`documentFragment`，在它上面应用所有`DOM操作`，最后再把它添加到文档中。
+   - **避免频繁读取会引发回流/重绘的属性**，如果确实需要多次使用，就用一个变量缓存起来。
+   - **对具有复杂动画的元素使用绝对定位**，使它脱离文档流，否则会引起父元素及后续元素频繁回流。
+
+   ### 介绍下观察者模式和订阅-发布模式的区别，各自适用于什么场景
+
+   https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/25
+
+   ### 聊聊 Redux 和 Vuex 的设计思想
+
+   **共同点**
+
+   首先两者都是处理全局状态的工具库，大致实现思想都是：全局state保存状态---->dispatch(action)
+   ------>reducer(vuex里的mutation)----> 生成newState; 整个状态为同步操作；
+
+   **区别**
+
+   最大的区别在于处理异步的不同，vuex里面多了一步commit操作，在action之后commit(mutation)之前处理异步，而redux里面则是通过中间件处
+
+   ### 说说浏览器和 Node 事件循环的区别
+
+   https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/26
+
+   ### 介绍模块化发展历程
+
+   可从IIFE、AMD、CMD、CommonJS、UMD、webpack(require.ensure)、ES Module、`<script type="module">` 这几个角度考虑
+
+   ### 全局作用域中，用 const 和 let 声明的变量不在 window 上，那到底在哪里？如何去获取
+
+   在ES5中，顶层对象的属性和全局变量是等价的，var 命令和 function 命令声明的全局变量，自然也是顶层对象。
+
+   ```
+   var a = 12;
+   function f(){};
+   
+   console.log(window.a); // 12
+   console.log(window.f); // f(){}
+   ```
+
+   但ES6规定，var 命令和 function 命令声明的全局变量，依旧是顶层对象的属性，但 let命令、const命令、class命令声明的全局变量，不属于顶层对象的属性。
+
+   ```
+   let aa = 1;
+   const bb = 2;
+   
+   console.log(window.aa); // undefined
+   console.log(window.bb); // undefined
+   ```
+
+   在哪里？怎么获取？通过在设置断点，看看浏览器是怎么处理的：
+
+   [![letandconst](https://user-images.githubusercontent.com/20290821/53854366-2ec1a400-4004-11e9-8c62-5a1dd91b8a5b.png)](https://user-images.githubusercontent.com/20290821/53854366-2ec1a400-4004-11e9-8c62-5a1dd91b8a5b.png)
+
+   通过上图也可以看到，在全局作用域中，用 let 和 const 声明的全局变量并没有在全局对象中，只是一个块级作用域（Script）中
+
+   怎么获取？在定义变量的块级作用域中就能获取啊，既然不属于顶层对象，那就不加 window（global）呗。
+
+   ```
+   let aa = 1;
+   const bb = 2;
+   
+   console.log(aa); // 1
+   console.log(bb); // 2
+   ```
+
+### 下面代码输出什么?
+
+例题1：
+
+```js
+var a = 10;
+(function () {
+    console.log(a)//undefined
+    a = 5
+    console.log(window.a)//10
+    var a = 20;
+    console.log(a)//20
+})()
+```
+
+例题2：
+
+```js
+var obj = {
+    '2': 3,
+    '3': 4,
+    'length': 2,
+    'splice': Array.prototype.splice,
+    'push': Array.prototype.push
+}
+obj.push(1)
+obj.push(2)
+console.log(obj)
+```
+
+答案：
+
+```js
+{
+    '2': 1,
+    '3': 2,
+    'length': 2,
+    'splice': Array.prototype.splice,
+    'push': Array.prototype.push
+}
+```
+
+例题3：连等号赋值。
+
+```js
+var a = {n: 1};
+var b = a;
+a.x = a = {n: 2};
+
+console.log(a.x) 	
+console.log(b.x)
+```
+
+注意：连等号的顺序，不是从右向左；而是从左向右的顺序每项都赋同样的值
+
+所以如下 ：
+
+```js
+var a = {n: 1};
+var b = a;
+// a.x = a = {n: 2};
+a.x = {n: 2}
+a = {n: 2}
+
+console.log(a.x)//undefined
+console.log(b.x)//{n: 2}
+```
+
+
+
+### 实现 (5).add(3).minus(2) 功能
+
+> 例： 5 + 3 - 2，结果为 6
+
+```js
+Number.prototype.add = function(num){
+    if(typeof num !=="number"){
+        throw Error('Type Error')
+    }
+    return this + num;
+}
+Number.prototype.minus = function(num){
+    if(typeof num !=="number"){
+        throw Error('Type Error')
+    }
+    return this - num;
+}
+var num = (5).add('3a').minus(2)
+console.log(num)
+```
+
+### 某公司 1 到 12 月份的销售额存在一个对象里面
+
+> 如下：{1:222, 2:123, 5:888}，请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]。
+
+```js
+    var obj = {1:222, 2:123, 5:888, length:13}//最大index值为12，所以length写13，结果去开头index0
+    var result = [];
+    Array.prototype.find.call(obj, item => {
+        item ? result.push(item): result.push(null)
+    })
+    result.shift()
+    console.log(result)//[222, 123, null, null, 888, null, null, null, null, null, null, null]
+
+
+onsole.log(Array.from({length: 12}))//[undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined]
+//方法2：
+let obj = {1:222, 2:123, 5:888};
+const result = Array.from({ length: 12 }).map((_, index) => obj[index + 1] || null);
+console.log(result)
+```
+
+
+
+### 下面代码中 a 在什么情况下会打印 1？
+
+```js
+var a = ?;
+if(a == 1 && a == 2 && a == 3){
+ 	console.log(1);
+}
+```
+
+答案：
+
+```js
+var a = {
+    i: 1,
+    toString(){
+        return this.i++
+    }
+};
+if(a == 1 && a == 2 && a == 3){
+ 	console.log(1); //1
+}
+```
+
+
+
+### 改造下面的代码，使之输出0 - 9，写出你能想到的所有解法
+
+```js
+for (var i = 0; i< 10; i++){
+	setTimeout(() => {
+		console.log(i);
+    }, 1000)
+}
+```
+
+1、立即执行函数添加一个函数作用域
+
+```js
+    for (var i = 0; i < 10; i++) {
+        (function(j){
+            setTimeout(function(){
+                console.log(j)
+             },1000)
+        })(i)
+    }
+```
+
+
+
+2、let生成块级作用域
+
+```js
+        for (let i = 0; i < 10; i++) {
+            setTimeout(function () {
+                console.log(i)
+            }, 1000)
+        }
+```
+
+
+
+3、setTimeout接收参数，打印自己作用域的局部变量
+
+```js
+    for (var i = 0; i < 10; i++) {
+        setTimeout(function(j){
+            console.log(j)
+        },1000, i)
+    }
+```
+
+### 下面的代码打印什么内容，为什么？
+
+例题1：IIFE的函数无法进行被赋值（内部机制，类似const定义的常量）
+
+```js
+        var b = 10;
+        (function b() {
+            b = 20;//在chrome控制台中查看，此处赋值没有生效
+            console.log(b);
+        })();
+
+
+```
+
+> ƒ b() {
+>             b = 20;
+>             console.log(b);
+>         }
+
+例题2：
+
+```js
+        var b = 10;
+        var b = function () {
+            b = 20;
+            console.log(b);//20
+        }
+        b()
+```
+
+例题3：函数变量声明提升，此时的b是数值10
+
+```js
+        var b = 10;
+        function b() {
+            b = 20;
+            console.log(b);
+        }
+        b()//b is not a function
+```
+
+例题4：
+
+```js
+        function b() {
+            b = 20;
+            console.log(b);//20
+        }
+        b()
+```
+
+### 简单改造下面的代码，使之分别打印 10 和 20。
+
+```js
+var b = 10;
+(function b(){
+    b = 20;
+    console.log(b); 
+})();
+```
+
+打印10：
+
+```js
+        var b = 10;
+        (function b() {
+            b = 20;
+            console.log(window.b);//10
+        })();
+```
+
+打印20：
+
+```js
+        var b = 10;
+        (function m() {
+            b = 20;
+            console.log(b);//20
+        })();
+```
+
+### 浏览器缓存读取规则？
+
+>可以分成 Service Worker、Memory Cache、Disk Cache 和 Push Cache，那请求的时候 from memory cache 和 from disk cache 的依据是什么，哪些数据什么时候存放在 Memory Cache 和 Disk Cache中？
+
+
+参考：https://www.jianshu.com/p/54cc04190252
+
+### 使用迭代的方式实现 flat 函数
+
+
+
+MDN flat函数：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+
+
+
+### 介绍下 BFC 及其应用
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/59
 
