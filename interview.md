@@ -22,6 +22,8 @@ https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/65
 
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/60
 
+### Vue 的父组件和子组件生命周期钩子执行顺序是什么
+
 
 
 ### `['1', '2', '3'].map(parseInt)` what & why ?
@@ -538,6 +540,30 @@ MDN await：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Op
         console.log('script end');//3
 ```
 
+### 介绍下 Promise.all 使用、原理实现及错误处理?
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/130
+
+### 设计并实现 Promise.race()
+
+
+
+### 打印出 1 - 10000 之间的所有对称数?
+
+```js
+console.time('s')
+var reg = /^(\d)\1$|^(\d)\d\2$|(\d)(\d)\4\3/g
+var arr = [];
+for(var i = 1; i <= 10000; i++){
+    var v = reg.exec(String(i))
+    if(v){
+        arr.push(Number(v[0]))
+    }
+}
+console.log(arr)
+console.timeEnd('s')//s: 3.13916015625 ms
+```
+
 
 
 ### 数组扁平化去并除其中重复部分数据，最终得到一个升序且不重复的数组
@@ -867,6 +893,10 @@ HTTP协议传输的数据都是未加密的，也就是明文的，因此使用H
 
 参考文章：https://www.cnblogs.com/wqhwe/p/5407468.html
 
+### 介绍下 HTTPS 中间人攻击
+
+
+
 ### 有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
 
 > Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
@@ -1193,6 +1223,55 @@ var num = (5).add('3a').minus(2)
 console.log(num)
 ```
 
+### 请实现一个 add 函数，满足以下功能。
+
+```js
+add(1); 			// 1
+add(1)(2);  	// 3
+add(1)(2)(3)// 6
+add(1)(2, 3); // 6
+add(1, 2)(3); // 6
+add(1, 2, 3); // 6
+```
+
+### 周一算法题之「两数之和」
+
+> 给定一个整数数组和一个目标值，找出数组中和为目标值的两个数。
+>
+> 你可以假设每个输入只对应一种答案，且同样的元素不能被重复利用。
+>
+> 示例：
+>
+> ```js
+> 给定 nums = [2, 7, 11, 15], target = 9
+> 
+> 因为 nums[0] + nums[1] = 2 + 7 = 9
+> 所以返回 [0, 1]
+> ```
+
+以下答案无法处理数组中重复的数据，比如7+7=14
+
+```js
+ var nums = [2, 7, 11, 15], target = 9;
+
+ var map = {}
+
+ nums.forEach((item, index) => {//时间复杂度O(nums.length)
+     if(item < target){
+        map[item] = index
+     }
+ })
+ for(prop in map){
+     var findV = map[target - Number(prop)];
+    if(findV){
+        console.log([map[prop],findV])//[0, 1]
+        break;
+    }
+ }
+```
+
+
+
 ### 某公司 1 到 12 月份的销售额存在一个对象里面
 
 > 如下：{1:222, 2:123, 5:888}，请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]。
@@ -1212,6 +1291,43 @@ onsole.log(Array.from({length: 12}))//[undefined, undefined, undefined, undefine
 let obj = {1:222, 2:123, 5:888};
 const result = Array.from({ length: 12 }).map((_, index) => obj[index + 1] || null);
 console.log(result)
+```
+
+### 给定两个数组，写一个方法来计算它们的交集？
+
+这道题不是工程题，是道算法题。空间换时间的思路，时间复杂度就是(m+n)
+
+```js
+        var arr1 = [1,2,2,1]
+        var arr2 = [2,2]
+        var map = {}
+
+        arr1.forEach(item => map[item] ? map[item]++ : map[item] = 1)
+        var result = arr2.filter(item => {
+            if(map[item]){//非undefined，非0
+                map[item] --;
+                return true
+            }
+        })
+
+        console.log(result)// [2, 2]
+
+```
+
+### 如何把一个字符串的大小写取反（大写变小写小写变大写），例如 ’AbC' 变成 'aBc' 
+
+```js
+        var str = 'AbC'
+        var reg = /([A-Z])|([a-z])/g
+        var result = str.replace(reg, function (match, p1, p2) {
+            if (p1) {
+                return p1.toLowerCase()
+            }
+            if (p2) {
+                return p2.toUpperCase()
+            }
+        })
+        console.log(result)//aBc
 ```
 
 
@@ -1381,9 +1497,26 @@ var b = 10;
 
 MDN flat函数：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
 
+### 在输入框中如何判断输入的是一个正确的网址？
+
+从url对象出发
+
 
 
 ### 介绍下 BFC 及其应用
 
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/59
+
+### 实现模糊搜索结果的关键词高亮显示
+
+我的大概思路是，用正则替换掉关键词。
+
+```js
+let panter = new RegExp(关键词, 'g')
+该行字符串.replace(panter, '<b style="color: #2D7BFF">' + 关键词 + '</b>')
+```
+
+ps:如果是vue项目，直接与v-html结合使用更爽哦~
+
+
 
