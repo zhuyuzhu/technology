@@ -4,6 +4,10 @@
 
 https://juejin.cn/post/6844903885488783374#heading-111
 
+# Vue和React
+
+
+
 ### React / Vue 项目时为什么要在列表组件中写 key，其作用是什么？
 
 没有绑定key的情况下，在遍历简单模板时，对比虚拟dom的新旧 节点会更快，节点也会就地复用。副作用，可能不会产生过渡效果，绑定数据会出现错位，这个模式虽然高效，但只适用不依赖子组件状态或临时dom状态的列表渲染。
@@ -25,6 +29,16 @@ https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/60
 ### Vue 的父组件和子组件生命周期钩子执行顺序是什么
 
 
+
+### React 和 Vue 的 diff 时间复杂度从 O(n^3) 优化到 O(n) ，那么 O(n^3) 和 O(n) 是如何计算出来的？
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/151
+
+### vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
+
+
+
+# ES5和ES6
 
 ### `['1', '2', '3'].map(parseInt)` what & why ?
 
@@ -273,6 +287,107 @@ let BFSdeepClone = (obj) => {
   return copyObj
 }
 ```
+
+**深度优先遍历——自实现**
+
+```js
+        var deepClone = function (target, weakset = new WeakSet()) {
+            if (typeof target === 'object' && target !== null) { //包括数组、对象、类数组，Set、WeakSet、Map、WeakMap
+                var o = Array.isArray(target) ? [] : {};
+                if (weakset.has(target)) {
+                    return target;
+                } else {
+                    weakset.add(target);
+                    for (let prop in target) {//无法遍历到对象的Symbol属性
+                        if (prop === 't') {
+                            console.log(target[prop])
+                        }
+                        o[prop] = deepClone(target[prop], weakset)
+                    }
+                    return o;
+                }
+
+            } else if (typeof target === "function") {
+                return eval('(' + target.toString() + ')')
+            } else {
+                return target
+            }
+        }
+        var obj = {
+            a: 'a',
+            m: {
+                x: '12'
+            }
+        }
+        var target1 = {
+            a: 1,
+            b: 'a',
+            c: function () {
+                console.log('c')
+            },
+            d: [1, 2, 3],
+            f: obj
+        }
+        target1.o = target1;//必须通过这种方式产生循环引用。如果在申明对象时，写在对象结构体中，无法赋值，值为undefined
+        var result = deepClone(target1)
+        console.log(result)
+```
+
+### 模拟实现一个深拷贝，并考虑对象相互引用以及 Symbol 拷贝的情况
+
+**注意：对象中的Symbol属性，必须使用[]，不管是在对象内作为属性，还是访问时，都要有[]。**
+
+**如果Symbol()的形式值作为属性，对象自身都无法访问。所以使用Symbol.for('a')的形式作为对象的Symbol属性。**
+
+```js
+        var deepClone = function (target, weakset = new WeakSet()) {
+            if (typeof target === 'object' && target !== null) { //包括数组、对象、类数组，Set、WeakSet、Map、WeakMap
+                var o = Array.isArray(target) ? [] : {};
+                if (weakset.has(target)) {
+                    return target;
+                } else {
+                    weakset.add(target);
+                    for (let prop in target) {
+                        o[prop] = deepClone(target[prop], weakset)
+                    }
+                    var targetSymArr = Object.getOwnPropertySymbols(target);//获取target对象中的Symbol属性
+                    if(targetSymArr.length > 0){
+                        targetSymArr.forEach(item => {
+                            o[item] = deepClone(target[item], weakset)
+                        })
+                        console.log(targetSymArr)
+                    }
+                    return o;
+                }
+
+            } else if (typeof target === "function") {
+                return eval('(' + target.toString() + ')')
+            } else {
+                return target
+            }
+        }
+        var obj = {
+            a: 'a',
+            m: {
+                x: '12'
+            }
+        }
+        var target1 = {
+            a: 1,
+            b: 'a',
+            c: function () {
+                console.log('c')
+            },
+            d: [1, 2, 3],
+            f: obj,
+            [Symbol.for('1')]: 1
+        }
+        target1.o = target1; //必须通过这种方式产生循环引用。如果在申明对象时，写在对象结构体中，无法赋值，值为undefined
+        var result = deepClone(target1)
+        console.log(result)
+```
+
+
 
 ### ES5/ES6 的继承除了写法以外还有什么区别？
 
@@ -809,6 +924,8 @@ npm install查询当前node_modules目录中有没有对应的指定的模块，
 
 最后一步是生成或更新版本描述文件，npm install 过程完成。
 
+# htpp、https
+
 
 
 ### 谈谈你对TCP三次握手和四次挥手的理解
@@ -883,7 +1000,7 @@ HTTP协议传输的数据都是未加密的，也就是明文的，因此使用H
 
 　　HTTPS和HTTP的区别主要如下：
 
-　　1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。
+　　1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。——**身份认证（CA数字证书）**
 
 　　2、http是超文本传输协议，信息是明文传输，https则是具有安全性的ssl加密传输协议。
 
@@ -894,6 +1011,8 @@ HTTP协议传输的数据都是未加密的，也就是明文的，因此使用H
 参考文章：https://www.cnblogs.com/wqhwe/p/5407468.html
 
 ### 介绍下 HTTPS 中间人攻击
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/142
 
 
 
@@ -1134,7 +1253,7 @@ Object.prototype.toString.call({name: 'An'}) // "[object Object]"
 
 ### 下面代码输出什么?
 
-例题1：
+**例题1：**
 
 ```js
 var a = 10;
@@ -1147,7 +1266,7 @@ var a = 10;
 })()
 ```
 
-例题2：
+**例题2：**
 
 ```js
 var obj = {
@@ -1174,7 +1293,7 @@ console.log(obj)
 }
 ```
 
-例题3：连等号赋值。
+**例题3：连等号赋值。**
 
 ```js
 var a = {n: 1};
@@ -1198,6 +1317,43 @@ a = {n: 2}
 
 console.log(a.x)//undefined
 console.log(b.x)//{n: 2}
+```
+
+**例题4：**
+
+```js
+        function Foo() {
+            Foo.a = function () {
+                console.log(1)
+            }
+            this.a = function () {
+                console.log(2)
+            }
+        }
+        Foo.prototype.a = function () {
+            console.log(3)
+        }
+        Foo.a = function () {
+            console.log(4)
+        }
+        Foo.a();//4
+        let obj = new Foo();
+        obj.a();//2
+        Foo.a();//1
+
+```
+
+例题5：
+
+```js
+function changeObjProperty(o) {
+  o.siteUrl = "http://www.baidu.com"
+  o = new Object()
+  o.siteUrl = "http://www.google.com"
+} 
+let webSite = new Object();
+changeObjProperty(webSite);
+console.log(webSite.siteUrl)//"http://www.baidu.com"
 ```
 
 
@@ -1270,6 +1426,27 @@ add(1, 2, 3); // 6
  }
 ```
 
+### 编程算法题
+
+> 用 JavaScript 写一个函数，输入 int 型，返回整数逆序后的字符串。如：输入整型 1234，返回字符串“4321”。要求必须使用递归函数调用，不能用全局变量，输入函数必须只有一个参数传入，必须返回字符串。
+
+```js
+var translateInt = function(intNum){
+    var result = '';
+    result += intNum % 10;
+    var num = parseInt(intNum / 10, 10);
+    if(num !== 0){
+       return  result += arguments.callee(num)//每一层都是得到自己的result
+    }
+    return result
+}
+console.log(translateInt(123456789))//987654321
+```
+
+### 递归存储值的思考
+
+可以全局变量存储；可以使用默认参数存储，联想到深度遍历的代码；可以使用上面的方式存储。
+
 
 
 ### 某公司 1 到 12 月份的销售额存在一个对象里面
@@ -1313,6 +1490,30 @@ console.log(result)
         console.log(result)// [2, 2]
 
 ```
+
+### 给定两个大小为 m 和 n 的有序数组 nums1 和 nums2。请找出这两个有序数组的中位数。要求算法的时间复杂度为 O(log(m+n))。
+
+> 示例 1：
+>
+> ```js
+> nums1 = [1, 3]
+> nums2 = [2]
+> 复制代码
+> ```
+>
+> 中位数是 2.0
+>
+> 示例 2：
+>
+> ```js
+> nums1 = [1, 2]
+> nums2 = [3, 4]
+> 复制代码
+> ```
+>
+> 中位数是(2 + 3) / 2 = 2.5
+
+
 
 ### 如何把一个字符串的大小写取反（大写变小写小写变大写），例如 ’AbC' 变成 'aBc' 
 
@@ -1520,3 +1721,6 @@ ps:如果是vue项目，直接与v-html结合使用更爽哦~
 
 
 
+### 介绍下前端加密的常见场景和方法?
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/150
