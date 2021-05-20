@@ -18,6 +18,57 @@ https://juejin.cn/post/6844903885488783374#heading-111
 
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/47
 
+1. **原生 DOM 操作 vs. 通过框架封装操作。**
+
+这是一个性能 vs. 可维护性的取舍。
+
+手动优化：通过手动优化原生的dom操作，来实现高性能的代码；但是我们需要在每个地方都进行手动优化，出于可维护性的考虑，这显然不可能。
+
+框架的意义：封装了低层dom操作，更容易通过框架的语法糖来操作dom，达到开发目的，更容易维护我们的代码。框架操作dom的性能无法与手动优化的原生dom相比较，因为框架的 DOM 操作层需要应对任何上层 API 可能产生的操作，它的实现考虑更多的操作情况。框架可以保证在不需要手动优化的情况下，依然可以提供过得去的性能。
+
+2.  **Virtual DOM 的理解**
+
+   不管react还是vue操作dom都不比原生的dom操作快。
+
+React 的基本思维模式是每次有变动就整个重新渲染整个应用。如果没有 Virtual DOM，简单来想就是直接重置 innerHTML。很多人都没有意识到，在一个大型列表所有数据都变了的情况下，重置 innerHTML 其实是一个还算合理的操作... 真正的问题是在 “全部重新渲染” 的思维模式下，即使只有一行数据变了，它也需要重置整个 innerHTML，这时候显然就有大量的浪费。
+
+我们可以比较一下 innerHTML vs. Virtual DOM 的重绘性能消耗：
+
+- innerHTML: render html string O(template size) + 重新创建所有 DOM 元素 O(DOM size)——构建每个html字符串的时间和重新去渲染每个需要渲染的dom元素。
+- Virtual DOM: render Virtual DOM + diff O(template size) + 必要的 DOM 更新 O(DOM change)——渲染虚拟dom、diff算法对比出需要更新的dom、渲染对应的dom
+
+Virtual DOM render + diff 显然比渲染 html 字符串要慢，但是！它依然是纯 js 层面的计算，比起后面的 DOM 操作来说，依然便宜了太多。可以看到，innerHTML 的总计算量不管是 js 计算还是 DOM 操作都是和整个界面的大小相关，但 Virtual DOM 的计算量里面，只有 js 计算和界面大小相关，DOM 操作是和数据的变动量相关的。前面说了，和 DOM 操作比起来，js 计算是极其便宜的。这才是为什么要有
+
+ Virtual DOM：保证了 1）不管数据的变动有多大，渲染时的性能都还可以  2) 保留了innerHTML的原生方法操作dom
+
+3. MVVM vs. Virtual DOM
+
+相比起 React，其他 MVVM 系框架比如 Angular, Knockout 以及 Vue、Avalon 采用的都是数据绑定：通过 Directive/Binding 对象，观察数据变化并保留对实际 DOM 元素的引用，当有数据变化时进行对应的操作。MVVM 的变化检查是数据层面的，而 React 的检查是 DOM 结构层面的。MVVM 的性能也根据变动检测的实现原理有所不同：Angular 的脏检查使得任何变动都有固定的
+O(watcher count) 的代价；Knockout/Vue/Avalon 都采用了依赖收集，在 js 和 DOM 层面都是 O(change)：
+
+- 脏检查：scope digest O(watcher count) + 必要 DOM 更新 O(DOM change)
+- 依赖收集：重新收集依赖 O(data change) + 必要 DOM 更新 O(DOM change)可以看到，Angular 最不效率的地方在于任何小变动都有的和 watcher 数量相关的性能代价。但是！当所有数据都变了的时候，Angular 其实并不吃亏。依赖收集在初始化和数据变化的时候都需要重新收集依赖，这个代价在小量更新的时候几乎可以忽略，但在数据量庞大的时候也会产生一定的消耗。
+
+MVVM 渲染列表的时候，由于每一行都有自己的数据作用域，所以通常都是每一行有一个对应的 ViewModel 实例，或者是一个稍微轻量一些的利用原型继承的 "scope" 对象，但也有一定的代价。所以，MVVM 列表渲染的初始化几乎一定比 React 慢，因为创建 ViewModel / scope 实例比起 Virtual DOM 来说要昂贵很多。这里所有 MVVM 实现的一个共同问题就是在列表渲染的数据源变动时，尤其是当数据是全新的对象时，如何有效地复用已经创建的 ViewModel 实例和 DOM 元素。假如没有任何复用方面的优化，由于数据是 “全新” 的，MVVM 实际上需要销毁之前的所有实例，重新创建所有实例，最后再进行一次渲染！这就是为什么题目里链接的 angular/knockout 实现都相对比较慢。相比之下，React 的变动检查由于是 DOM 结构层面的，即使是全新的数据，只要最后渲染结果没变，那么就不需要做无用功。
+
+Angular 和 Vue 都提供了列表重绘的优化机制，也就是 “提示” 框架如何有效地复用实例和 DOM 元素。比如数据库里的同一个对象，在两次前端 API 调用里面会成为不同的对象，但是它们依然有一样的 uid。这时候你就可以提示 track by uid 来让 Angular 知道，这两个对象其实是同一份数据。那么原来这份数据对应的实例和 DOM 元素都可以复用，只需要更新变动了的部分。或者，你也可以直接 track by $index 来进行 “原地复用”：直接根据在数组里的位置进行复用。在题目给出的例子里，如果 angular 实现加上 track by $index 的话，后续重绘是不会比 React 慢多少的。甚至在 dbmonster 测试中，Angular 和 Vue 用了 track by $index 以后都比 React 快: dbmon (注意 Angular 默认版本无优化，优化过的在下面）
+
+顺道说一句，React 渲染列表的时候也需要提供 key 这个特殊 prop，本质上和 track-by 是一回事。
+
+4. 性能比较也要看场合
+
+在比较性能的时候，要分清楚初始渲染、小量数据更新、大量数据更新这些不同的场合。Virtual DOM、脏检查 MVVM、数据收集 MVVM 在不同场合各有不同的表现和不同的优化需求。Virtual DOM 为了提升小量数据更新时的性能，也需要针对性的优化，比如 shouldComponentUpdate 或是 immutable data。
+
+- 初始渲染：Virtual DOM > 脏检查 >= 依赖收集
+- 小量数据更新：依赖收集 >> Virtual DOM + 优化 > 脏检查（无法优化） > Virtual DOM 无优化
+- 大量数据更新：脏检查 + 优化 >= 依赖收集 + 优化 > Virtual DOM（无法/无需优化）>> MVVM 无优化
+
+不要天真地以为 Virtual DOM 就是快，diff 不是免费的，batching 么 MVVM 也能做，而且最终 patch 的时候还不是要用原生 API。在我看来 Virtual DOM 真正的价值从来都不是性能，而是它 1) 为函数式的 UI 编程方式打开了大门；2) 可以渲染到 DOM 以外的 backend，比如 ReactNative。
+
+5. 总结
+
+以上这些比较，更多的是对于框架开发研究者提供一些参考。主流的框架 + 合理的优化，足以应对绝大部分应用的性能需求。如果是对性能有极致需求的特殊情况，其实应该牺牲一些可维护性采取手动优化：比如 Atom 编辑器在文件渲染的实现上放弃了 React 而采用了自己实现的 tile-based rendering；又比如在移动端需要 DOM-pooling 的虚拟滚动，不需要考虑顺序变化，可以绕过框架的内置实现自己搞一个。
+
 ### 为什么 Vuex 的 mutation 和 Redux 的 reducer 中不能做异步操作？
 
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/65
@@ -35,6 +86,12 @@ https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/60
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/151
 
 ### vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
+
+
+
+### 聊一下vuex
+
+https://vuex.vuejs.org/zh/guide/state.html
 
 
 
@@ -299,9 +356,6 @@ let BFSdeepClone = (obj) => {
                 } else {
                     weakset.add(target);
                     for (let prop in target) {//无法遍历到对象的Symbol属性
-                        if (prop === 't') {
-                            console.log(target[prop])
-                        }
                         o[prop] = deepClone(target[prop], weakset)
                     }
                     return o;
@@ -923,96 +977,6 @@ npm install查询当前node_modules目录中有没有对应的指定的模块，
 根据 package.json和package-lock.json中的版本信息，得到版本依赖树，要处理重复的模块，并对重复模板的版本号进行处理，遍历所有节点，逐个将模块放在根节点下面，也就是 node-modules 的第一层。当发现有**重复模块**时，则将其丢弃。如果依赖的重复版本无法做兼容性处理 ，将同时保留。
 
 最后一步是生成或更新版本描述文件，npm install 过程完成。
-
-# htpp、https
-
-
-
-### 谈谈你对TCP三次握手和四次挥手的理解
-
-由于TCP连接是全双工的，因此每个方向都必须单独进行关闭，所以即使没有最后一个包，也需要先回复断开连接的请求，然后再发送关闭请求。
-
-TCP三次握手：1、客户端发送syn包到服务器，等待服务器确认接收。2、服务器确认接收syn包并确认客户的syn，并发送回来一个syn+ack的包给客户端。3、客户端确认接收服务器的syn+ack包，并向服务器发送确认包ack，二者相互建立联系后，完成tcp三次握手。
-
-三次握手之所以是三次是保证client和server均让对方知道自己的接收和发送能力没问题而保证的最小次数。
-
-第一次client => server 只能server判断出client具备发送能力
-第二次 server => client client就可以判断出server具备发送和接受能力。此时client还需让server知道自己接收能力没问题于是就有了第三次
-第三次 client => server 双方均保证了自己的接收和发送能力没有问题
-
-其中，为了保证后续的握手是为了应答上一个握手，每次握手都会带一个标识 seq，后续的ACK都会对这个seq进行加一来进行确认。
-
-四次挥手即终止TCP连接，就是指断开一个TCP连接时，需要客户端和服务端总共发送4个包以确认连接的断开。
-
-由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。这原则是当一方完成它的数据发送任务后就能发送一个FIN来终止这个方向的连接。收到一个 FIN只意味着这一方向上没有数据流动，一个TCP连接在收到一个FIN后仍能发送数据。首先进行关闭的一方将执行主动关闭，而另一方执行被动关闭。
-
-（1） TCP客户端发送一个FIN，用来关闭客户到服务器的[数据传送](https://baike.baidu.com/item/数据传送)。
-
-（2） 服务器收到这个FIN，它发回一个ACK，确认序号为收到的序号加1。和SYN一样，一个FIN将占用一个序号。
-
-（3） 服务器关闭客户端的连接，发送一个FIN给客户端。
-
-（4） 客户端发回ACK[报文](https://baike.baidu.com/item/报文)确认，并将确认序号设置为收到序号加1。
-
-
-
-- MSL
-
-> `Maximum Segment Lifetime`，译为“报文最大生存时间”。RFC 793中规定MSL为2分钟，实际应用中常用的是30秒，1分钟和2分钟等
-
-- 为什么是`2MSL`
-
-`2MSL`即两倍的MSL，TCP的`TIME_WAIT`状态也称为2MSL等待状态。
-
-当TCP的一端发起主动关闭，在发出最后一个ACK包后，即第3次握手完成后发送了第四次握手的ACK包后就进入了`TIME_WAIT`状态，必须在此状态上停留两倍的MSL时间。
-
-等待2MSL时间主要目的是怕最后一个ACK包对方没收到，那么对方在超时后将重发第三次握手的FIN包，主动关闭端接到重发的FIN包后可以再发一个ACK应答包。
-
-在`TIME_WAIT`状态时两端的端口不能使用，要等到`2MSL`时间结束才可继续使用。
-当连接处于`2MSL`等待阶段时任何迟到的报文段都将被丢弃。不过在实际应用中可以通过设置`SO_REUSEADDR`选项达到不必等待2MSL时间结束再使用此端口。
-
-### 简单讲解一下http2的多路复用
-
-HTTP2采用二进制格式传输，取代了HTTP1.x的文本格式，二进制格式解析更高效。
-多路复用代替了HTTP1.x的序列和阻塞机制，所有的相同域名请求都通过同一个TCP连接并发完成。在HTTP1.x中，并发多个请求需要多个TCP连接，浏览器为了控制资源会有6-8个TCP连接都限制。
-HTTP2中
-
-- 同域名下所有通信都在单个连接上完成，消除了因多个 TCP 连接而带来的延时和内存消耗。
-- 单个连接上可以并行交错的请求和响应，之间互不干扰
-
-### HTTP1.0、 HTTP1.1 、HTTP2.0的区别
-
-在 HTTP/1 中，每次请求都会建立一次HTTP连接，也就是我们常说的3次握手4次挥手，这个过程在一次请求过程中占用了相当长的时间，即使开启了 Keep-Alive ，解决了多次连接的问题，但是依然有两个效率上的问题：
-
-- 第一个：串行的文件传输。当请求a文件时，b文件只能等待，等待a连接到服务器、服务器处理文件、服务器返回文件，这三个步骤。我们假设这三步用时都是1秒，那么a文件用时为3秒，b文件传输完成用时为6秒，依此类推。（注：此项计算有一个前提条件，就是浏览器和服务器是单通道传输）
-- 第二个：连接数过多。我们假设Apache设置了最大并发数为300，因为浏览器限制，浏览器发起的最大请求数为6，也就是服务器能承载的最高并发为50，当第51个人访问时，就需要等待前面某个请求处理完成。
-
-HTTP/2的多路复用就是为了解决上述的两个性能问题。
-在 HTTP/2 中，有两个非常重要的概念，分别是帧（frame）和流（stream）。
-帧代表着最小的数据单位，每个帧会标识出该帧属于哪个流，流也就是多个帧组成的数据流。
-多路复用，就是在一个 TCP 连接中可以存在多条流。换句话说，也就是可以发送多个请求，对端可以通过帧中的标识知道属于哪个请求。通过这个技术，可以避免 HTTP 旧版本中的队头阻塞问题，极大的提高传输性能。
-
-参考文章：https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/14
-
-### http和https的区别
-
-HTTP协议传输的数据都是未加密的，也就是明文的，因此使用HTTP协议传输隐私信息非常不安全，为了保证这些隐私数据能加密传输，于是网景公司设计了SSL（Secure Sockets Layer）协议用于对HTTP协议传输的数据进行加密，从而就诞生了HTTPS。简单来说，HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全。
-
-　　HTTPS和HTTP的区别主要如下：
-
-　　1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。——**身份认证（CA数字证书）**
-
-　　2、http是超文本传输协议，信息是明文传输，https则是具有安全性的ssl加密传输协议。
-
-　　3、http和https使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。
-
-　　4、http的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比http协议安全
-
-参考文章：https://www.cnblogs.com/wqhwe/p/5407468.html
-
-### 介绍下 HTTPS 中间人攻击
-
-https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/142
 
 
 
@@ -1724,3 +1688,117 @@ ps:如果是vue项目，直接与v-html结合使用更爽哦~
 ### 介绍下前端加密的常见场景和方法?
 
 https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/150
+
+# htpp、https
+
+### 十分钟搞懂HTTP和HTTPS协议？
+
+https://zhuanlan.zhihu.com/p/72616216
+
+
+
+### 谈谈你对TCP三次握手和四次挥手的理解
+
+由于TCP连接是全双工的，因此每个方向都必须单独进行关闭，所以即使没有最后一个包，也需要先回复断开连接的请求，然后再发送关闭请求。
+
+TCP三次握手：1、客户端发送syn包到服务器，等待服务器确认接收。2、服务器确认接收syn包并确认客户的syn，并发送回来一个syn+ack的包给客户端。3、客户端确认接收服务器的syn+ack包，并向服务器发送确认包ack，二者相互建立联系后，完成tcp三次握手。
+
+三次握手之所以是三次是保证client和server均让对方知道自己的接收和发送能力没问题而保证的最小次数。
+
+第一次client => server 只能server判断出client具备发送能力
+第二次 server => client client就可以判断出server具备发送和接受能力。此时client还需让server知道自己接收能力没问题于是就有了第三次
+第三次 client => server 双方均保证了自己的接收和发送能力没有问题
+
+其中，为了保证后续的握手是为了应答上一个握手，每次握手都会带一个标识 seq，后续的ACK都会对这个seq进行加一来进行确认。
+
+四次挥手即终止TCP连接，就是指断开一个TCP连接时，需要客户端和服务端总共发送4个包以确认连接的断开。
+
+由于TCP连接是全双工的，因此每个方向都必须单独进行关闭。这原则是当一方完成它的数据发送任务后就能发送一个FIN来终止这个方向的连接。收到一个 FIN只意味着这一方向上没有数据流动，一个TCP连接在收到一个FIN后仍能发送数据。首先进行关闭的一方将执行主动关闭，而另一方执行被动关闭。
+
+（1） TCP客户端发送一个FIN，用来关闭客户到服务器的[数据传送](https://baike.baidu.com/item/数据传送)。
+
+（2） 服务器收到这个FIN，它发回一个ACK，确认序号为收到的序号加1。和SYN一样，一个FIN将占用一个序号。
+
+（3） 服务器关闭客户端的连接，发送一个FIN给客户端。
+
+（4） 客户端发回ACK[报文](https://baike.baidu.com/item/报文)确认，并将确认序号设置为收到序号加1。
+
+
+
+- MSL
+
+> `Maximum Segment Lifetime`，译为“报文最大生存时间”。RFC 793中规定MSL为2分钟，实际应用中常用的是30秒，1分钟和2分钟等
+
+- 为什么是`2MSL`
+
+`2MSL`即两倍的MSL，TCP的`TIME_WAIT`状态也称为2MSL等待状态。
+
+当TCP的一端发起主动关闭，在发出最后一个ACK包后，即第3次握手完成后发送了第四次握手的ACK包后就进入了`TIME_WAIT`状态，必须在此状态上停留两倍的MSL时间。
+
+等待2MSL时间主要目的是怕最后一个ACK包对方没收到，那么对方在超时后将重发第三次握手的FIN包，主动关闭端接到重发的FIN包后可以再发一个ACK应答包。
+
+在`TIME_WAIT`状态时两端的端口不能使用，要等到`2MSL`时间结束才可继续使用。
+当连接处于`2MSL`等待阶段时任何迟到的报文段都将被丢弃。不过在实际应用中可以通过设置`SO_REUSEADDR`选项达到不必等待2MSL时间结束再使用此端口。
+
+### 简单讲解一下http2的多路复用
+
+HTTP2采用二进制格式传输，取代了HTTP1.x的文本格式，二进制格式解析更高效。
+多路复用代替了HTTP1.x的序列和阻塞机制，所有的相同域名请求都通过同一个TCP连接并发完成。在HTTP1.x中，并发多个请求需要多个TCP连接，浏览器为了控制资源会有6-8个TCP连接都限制。
+HTTP2中
+
+- 同域名下所有通信都在单个连接上完成，消除了因多个 TCP 连接而带来的延时和内存消耗。
+- 单个连接上可以并行交错的请求和响应，之间互不干扰
+
+### HTTP1.0、 HTTP1.1 、HTTP2.0的区别
+
+在 HTTP/1 中，每次请求都会建立一次HTTP连接，也就是我们常说的3次握手4次挥手，这个过程在一次请求过程中占用了相当长的时间，即使开启了 Keep-Alive ，解决了多次连接的问题，但是依然有两个效率上的问题：
+
+- 第一个：串行的文件传输。当请求a文件时，b文件只能等待，等待a连接到服务器、服务器处理文件、服务器返回文件，这三个步骤。我们假设这三步用时都是1秒，那么a文件用时为3秒，b文件传输完成用时为6秒，依此类推。（注：此项计算有一个前提条件，就是浏览器和服务器是单通道传输）
+- 第二个：连接数过多。我们假设Apache设置了最大并发数为300，因为浏览器限制，浏览器发起的最大请求数为6，也就是服务器能承载的最高并发为50，当第51个人访问时，就需要等待前面某个请求处理完成。
+
+HTTP/2的多路复用就是为了解决上述的两个性能问题。
+在 HTTP/2 中，有两个非常重要的概念，分别是帧（frame）和流（stream）。
+帧代表着最小的数据单位，每个帧会标识出该帧属于哪个流，流也就是多个帧组成的数据流。
+多路复用，就是在一个 TCP 连接中可以存在多条流。换句话说，也就是可以发送多个请求，对端可以通过帧中的标识知道属于哪个请求。通过这个技术，可以避免 HTTP 旧版本中的队头阻塞问题，极大的提高传输性能。
+
+参考文章：https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/14
+
+### http和https的区别
+
+HTTP协议传输的数据都是未加密的，也就是明文的，因此使用HTTP协议传输隐私信息非常不安全，为了保证这些隐私数据能加密传输，于是网景公司设计了SSL（Secure Sockets Layer）协议用于对HTTP协议传输的数据进行加密，从而就诞生了HTTPS。简单来说，HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全。
+
+　　HTTPS和HTTP的区别主要如下：
+
+　　1、https协议需要到ca申请证书，一般免费证书较少，因而需要一定费用。——**身份认证（CA数字证书）**
+
+　　2、http是超文本传输协议，信息是明文传输，https则是具有安全性的ssl加密传输协议。
+
+　　3、http和https使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。
+
+　　4、http的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比http协议安全
+
+参考文章：https://www.cnblogs.com/wqhwe/p/5407468.html
+
+### 介绍下 HTTPS 中间人攻击
+
+https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/142
+
+
+
+### 服务器
+
+Apache：静态服务器，可以解析HTML、图片
+
+Tomcat：Servlet容器，JSP服务器。将URL映射到指定的Servlet进行处理，
+
+Nginx：高性能的http服务器和反向代理服务器
+
+HTTP服务器本质上也是一种应用程序——它通常运行在服务器之上，绑定服务器的IP地址并监听某一个tcp端口来接收并处理HTTP请求，这样客户端（一般来说是IE, Firefox，Chrome这样的浏览器）就能够通过HTTP协议来获取服务器上的网页（HTML格式）、文档（PDF格式）、音频（MP4格式）、视频（MOV格式）等等资源。
+
+绑定服务器的ip地址并箭头某个tcp端口来监听和处理http请求
+
+虽然Tomcat也可以认为是HTTP服务器，但通常它仍然会和Nginx配合在一起使用：
+
+- 动静态资源分离——运用Nginx的反向代理功能分发请求：所有动态资源的请求交给Tomcat，而静态资源的请求（例如图片、视频、CSS、JavaScript文件等）则直接由Nginx返回到浏览器，这样能大大减轻Tomcat的压力。
+- 负载均衡，当业务压力增大时，可能一个Tomcat的实例不足以处理，那么这时可以启动多个Tomcat实例进行水平扩展，而Nginx的负载均衡功能可以把请求通过算法分发到各个不同的实例进行处理
+
