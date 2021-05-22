@@ -6,7 +6,91 @@
 
 # CSS3
 
-媒体查询
+### display: flex
+
+https://blog.csdn.net/zyz00000000/article/details/82925070
+
+以下知识在flex-direction: row的情况下分析
+
+#### 容器属性
+
+（1）display: flex;
+
+（2）flex-wrap: nowrap;
+
+不换行意味着什么？所有的子项都要排在一行，排的下，按子项的盒模型宽度；如果子项盒模型的宽度和大于容易宽度，会将子项均等的排列在一行。——紧挨着
+
+flex-wrap: wrap;
+
+可以换意味着什么？按子项的盒模型宽度进行排列，排不下的，会排到下一行。——紧挨着
+
+因为是多行排列，那么行与行之间是怎么呈现的呢？默认align-items:stretch; 
+
+align-items:stretch; 多行盒模型的高度之和小于 容器的高度，那么
+
+![image-20210521141244654](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521141244654.png)
+
+如果多行的盒模型的高度之和大于容器的高度：溢出显示
+
+![image-20210521141422272](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521141422272.png)
+
+
+
+align-items在侧轴上如何对齐：默认值是stretch，**stretch值在有height值时，height值决定高度，在子项无height值时，铺满所占的行高**
+
+align-items:flex-start; 和上面的变现一致
+
+align-items:flex-end;
+
+align-items:center;
+
+
+
+
+
+
+
+**align-content：该属性在多行下，设置每一行在容器的排列。**
+
+align-content:stretch;默认值
+
+![image-20210521154542602](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521154542602.png)
+
+
+
+
+
+align-content:flex-start; 每行与上一行紧挨着
+
+![image-20210521154441358](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521154441358.png)
+
+align-content:center;
+
+
+
+![image-20210521154651323](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521154651323.png)
+
+justify-content对齐内容的方式
+
+默认值：flex-start左对齐、flex-end右对齐、center居中、
+
+留出间距space-between、
+
+![image-20210521145808513](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521145808513.png)
+
+space-around每个子元素两侧的间距相等、
+
+![image-20210521145837588](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521145837588.png)
+
+justify-content: space-evenly;
+
+![image-20210521153232889](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521153232889.png)
+
+
+
+
+
+### 媒体查询
 
 css2中媒体查询
 
@@ -180,9 +264,29 @@ https://blog.csdn.net/zyz00000000/article/details/82881346
 
 
 
+### IE6盒模型
+
+默认border-sizing: content-box
+
+IE6混杂盒模型：border-sizing: border-box
+
+
+
 # CSS interview
 
 https://zhuanlan.zhihu.com/p/84212558
+
+https://blog.csdn.net/u014697639/article/details/80311559
+
+https://zhuanlan.zhihu.com/p/122987171
+
+https://zhuanlan.zhihu.com/p/143929973
+
+https://segmentfault.com/a/1190000013860482
+
+https://www.jianshu.com/p/758399a1b99b
+
+https://zhuanlan.zhihu.com/p/114257330
 
 ### calc, support, media各自的含义及用法？
 
@@ -252,9 +356,55 @@ width: calc(100% - 80px);
 
 rem是全部的长度都相对于根元素<html>元素。通常做法是给html元素设置一个字体大小，然后其他元素的长度单位就为rem。
 
-em：子元素字体大小的em是相对于父元素字体大小，元素的width/height/padding/margin用em的话是相对于该元素的font-size
+以下实例中，div的宽高为20px
+
+```css
+        html {
+            font-size: 20px;
+        }
+        div {
+            width: 1rem;
+            height: 1rem;
+            border: 1px solid black;
+        }
+```
+
+
+
+em：子元素字体大小、width/height/padding/margin等相对于父元素的font-size
+
+示例：子元素的宽高是8px
+
+```css
+        .fa {
+            width: 100px;
+            height: 100px;
+            font-size: 16px;
+        }
+        .son {
+            width: 0.5em;
+            height: 0.5em;
+            border: 1px solid black;
+        }
+```
+
+
 
 vw/vh：全称是 Viewport Width 和 Viewport Height，视窗的宽度和高度，相当于 屏幕宽度和高度的 1%，不过，处理宽度的时候%单位更合适，处理高度的 话 vh 单位更好。
+
+vw：1vw等于视口宽度的1%。vh：1vh等于视口高度的1%。
+
+示例：50vw等于视图宽度的一半
+
+```css
+        .fa {
+            width: 50vw;
+            height: 10px;
+            border: 1px solid black;
+        }
+```
+
+
 
 px像素（Pixel）。相对长度单位。像素px是相对于显示器屏幕分辨率而言的。
 
