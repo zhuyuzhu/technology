@@ -276,11 +276,11 @@ IE6混杂盒模型：border-sizing: border-box
 
 https://zhuanlan.zhihu.com/p/84212558
 
-https://blog.csdn.net/u014697639/article/details/80311559
-
 https://zhuanlan.zhihu.com/p/122987171
 
 https://zhuanlan.zhihu.com/p/143929973
+
+https://segmentfault.com/a/1190000013325778
 
 https://segmentfault.com/a/1190000013860482
 
@@ -369,6 +369,13 @@ rem是全部的长度都相对于根元素<html>元素。通常做法是给html�
         }
 ```
 
+rem 布局的优缺点，相对于 em 的好处是：
+
+> 不会发生逐渐增大或者减小字体尺寸的情况，因为始终继承根元素的字体尺寸；
+> rem 单位不仅可应用于字体大小，还可以用于设定宽高等其他大小，使页面可以适配不同屏幕尺寸。
+
+rem 一般只用于移动端。
+
 
 
 em：子元素字体大小、width/height/padding/margin等相对于父元素的font-size
@@ -438,7 +445,7 @@ box-sizing的使用
 
 box-sizing的默认属性是content-box
 
-### 画一个三角形？
+### 画一个三角形？border
 
 ```css
  .a{
@@ -453,3 +460,193 @@ box-sizing的默认属性是content-box
 <div class="a"></div>
 ```
 
+要通过border属性来实现，border属性的特性是什么样的呢？
+
+```css
+        .fa {
+            width: 0;
+            height: 0;
+            border-left: 50px solid green;
+            border-right: 50px solid blue;
+            border-bottom: 100px solid red;
+            border-top: 50px solid darkgoldenrod;
+        }
+```
+
+![image-20210523123612119](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210523123612119.png)
+
+通过transform：rotate，进行适当的旋转。
+
+如果有宽高，又是什么样的效果呢？
+
+```css
+        .fa {
+            width: 50px;
+            height: 50px;
+            border-top: 20px solid black;
+            border-right: 20px solid green;
+            border-bottom: 20px solid blue;
+            border-left: 20px solid rebeccapurple;
+        }
+```
+
+![image-20210523141159725](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210523141159725.png)
+
+### 清除浮动的几种方式，及原理？BFC
+
+如何触发BFC?——块级格式上下文
+
+- float除了none以外的值
+- overflow除了visible之外的值
+- display(table-cell table-caption,inline-block)
+- position(absolute,fixed)
+
+一般用伪元素after来清除浮动，既不会对页面的HTML结构造成混乱，也可以清除浮动
+
+三点 ：让伪元素成为一个块元素；内容为空；清除两侧的浮动。
+
+```css
+display: block;
+content: '';
+clear: both;
+```
+
+关于BFC的MDN文档：https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context
+
+中文叫块级格式上下文，BFC 原理（BFC 的渲染规则）如下：
+
+> 1）在 BFC 这个元素的垂直方向的外边距会发生重叠，即 BFC 内部的兄弟元素中间会发生边距重叠。解决方法，给某个兄弟元素增加一个父元素，给父元素创建一个 BFC，其他兄弟元素不会和这个新增的父元素发生边距重叠；
+> 2）BFC 区域不会与浮动元素 box 重叠，这就是用来清除浮动的原理。比如左边是浮动元素，右边是一个 div，如果两者高度不相等，整个布局就会坍塌，所以为这个 div 创建一个 BFC，就能得到我们想要的布局；
+> 3）BFC 在页面是一个独立的容器，外面的元素不会影响里面的元素，反之亦然；
+> 4）计算 BFC 高度时，浮动元素也会参与计算。这就是在浮动元素父元素上增加 overflow:hidden 会将浮动元素计算入内，而不会使父元素高度坍塌或者背景颜色显示不出来的原因
+
+创建 BFC 的方式：
+
+> 1）只要 overflow 值不为 visible（默认值），就创建了 BFC；
+> 2）float 值不为 noun（默认值），只要设置了浮动，就创建了 BFC；
+> 3）position 值不为 static（默认值）或者是 relative，就创建了 BFC；
+> 4）将 display 值设置为 inline-box 或者是 table-cell（只要跟 table 相关的那几个），就创建了 BFC。
+
+对应的内联元素的格式化上下文叫 IFC。
+
+通过 BFC/IFC 解决边距重叠问题，三种边距重叠的情况：
+
+> 1）父子元素，父元素的高度跟子元素重叠，解决方法是为父元素创建一个 BFC；
+> 2）兄弟元素，比如一个有上边距，一个有下边距，这个时候会发生重叠，重叠的原则是取最大值，解决方法是给其中一个元素增加一个父元素，为这个父元素创建一个 BFC；
+> 3）空元素同时有 marging-top 和 marging-bottom 时，会取一个最大值作为边距，解决方法是为空元素创建一个 BFC。
+
+### CSS选择器有哪些？
+
+
+
+### CSS哪些属性可以继承
+
+css继承属性不能取消，只能重新定义而取代。
+
+可继承的属性有：字体font-size、font-famliy，文本颜色color、行高line-height，列表元素的样式list-style等，其他的基本上是不可继承的属性，比如宽高、背景颜色等。
+
+
+
+### CSS优先级（权重）
+
+
+
+### position定位的理解
+
+static（默认）：按照正常文档流进行排列；
+relative（相对定位）：不脱离文档流，参考自身静态位置通过 top, bottom, left, right 定位；
+absolute(绝对定位)：参考距其最近一个不为static的父级元素通过top, bottom, left, right 定位；
+fixed(固定定位)：所固定的参照对像是可视窗口。
+
+
+
+### 为什么要初始化CSS样式
+
+因为浏览器的兼容问题，不同浏览器对有些标签的默认值是不同的，如果没对CSS初始化往往会出现浏览器之间的页面显示差异。
+
+比如：
+
+1. Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示,可通过加入 CSS 属性 -webkit-text-size-adjust: none; 解决。
+2. 不同浏览器的标签默认的margin和padding不一样。*{margin:0;padding:0;}
+
+
+
+### CSS里的visibility属性有个collapse属性值？在不同浏览器下以后什么区别？
+
+当一个元素的visibility属性被设置成collapse值后，对于一般的元素，它的表现跟hidden是一样的。
+
+chrome中，使用collapse值和使用hidden没有区别。
+firefox，opera和IE，使用collapse值和使用display：none没有什么区别。
+
+### display:none与visibility：hidden的区别？
+
+display：none 不显示对应的元素，在文档布局中不再分配空间（回流+重绘）
+visibility：hidden 隐藏对应元素，在文档布局中仍保留原来的空间（重绘
+
+### 相邻的两个inline-block节点为什么会出现间隔，该如何解决
+
+是换行符引起的间隔问题，间隙为 4px。
+
+消除间隙的方法：
+
+> 1）去掉换行符；
+> 2）对父元素添加 font-size:0，将字体大小设置为 0，换行符也会为 0px，从而消除间隙，再为 inline-block 元素设置我们需要的字体大小；
+> 3）将 inline-block 的 margin-right/left 设置为 -4px；
+> 4）将父元素的 letter-spacing 或 word-spacing 设置为 -4px，这两个属性会增加或减少字符间隔。[word-spacing 对中文无效](https://link.zhihu.com/?target=https%3A//www.cnblogs.com/OrangeManLi/p/4107536.html)
+
+inline-block 还有两个问题：即不同高度的两个 inline-block 顶部不对齐，以及 inline-block 底部多出几像素（多出空白）。解决方法是为 inline-block 元素设置 vertical-align:top。[设置元素的垂直对齐方式](https://link.zhihu.com/?target=https%3A//www.w3school.com.cn/css/pr_pos_vertical-align.asp)
+
+
+
+### 1像素边框问题
+
+原因：有些手机分辨率比较高，是二倍屏或者三倍屏，在 CSS 中定义 border 为 1px，这些手机可能是两个物理像素或者是三个物理像素的高度（即看起来比 1px 粗）。
+
+解决方法：通过背景图片实现、通过 transform:scale(0.5) 实现、通过 viewport + rem 实现
+
+[参考资料](https://link.zhihu.com/?target=https%3A//www.jianshu.com/p/fa670b737a29)
+
+还可以引入 border.css 来实现
+
+
+
+### 关于布局
+
+https://zhuanlan.zhihu.com/p/124302579
+
+
+
+###  **使用 base64 编码的优缺点**
+
+```text
+·base64编码是一种图片处理格式，通过特定的算法将图片编码成一长串字符串，
+在页面上显示时可用该字符串来代替图片的url属性
+·使用base64的优点：
+① 减少一个图片的 HTTP 请求
+·使用base64的缺点：
+① 根据base64的编码原理，编码后的大小会比源文件大小大1/3，如果把大图片编码到html/css中，
+不仅会造成文件体积增加，影响文件的加载速度，还会增加浏览器对html或css文件解析渲染的时间。
+② 使用base64无法直接缓存，要缓存只能缓存包含base64的文件，比如HTML 或CSS，
+这相比于直接缓存图片的效果要差很多。
+③ ie8以前的浏览器不支持
+一般一些网站的小图标可以使用base64图片引入
+```
+
+
+
+### **为什么要清除浮动？清除浮动的方式？**
+
+
+
+
+
+### CSS优化，提高性能的方法有哪些？
+
+```text
+·加载性能：
+① CSS 压缩：将写好的CSS 进行打包压缩，可以减少很多的体积。
+② CSS单一样式：当需要下边距和左边距的时候，很多时候选择：margin: top 0 bottom 0;
+但margin-top: top;margin-bottom: bottom;执行的效率更高。
+·选择器性能：
+① 关键选择器。选择器的最后面的部分为关键选择器（即用来匹配目标元素的部分）。
+```
