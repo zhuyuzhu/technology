@@ -6,11 +6,183 @@
 
 # CSS3
 
-### display: flex
+弹性盒子是 CSS3 的一种新的布局模式。
+
+CSS3 弹性盒（ Flexible Box 或 flexbox），是一种当页面需要适应不同的屏幕大小以及设备类型时确保元素拥有恰当的行为的布局方式。
+
+引入弹性盒布局模型的目的是提供一种更加有效的方式来对一个容器中的子元素进行排列、对齐和分配空白空间。
+
+**要先阅读该文章：**https://www.runoob.com/w3cnote/flex-grammar.html
+
+### 容器属性
+
+#### display: flex
 
 https://blog.csdn.net/zyz00000000/article/details/82925070
 
 以下知识在flex-direction: row的情况下分析
+
+子项宽高的设置，默认情况下弹性盒子
+
+默认值：
+
+> display: flex;
+>
+> flex-direction: row;
+>
+> flex-wrap: nowrap;
+>
+> justify-content: 
+
+
+
+#### flex-direction
+
+flex-direction属性决定主轴的方向（即项目的排列方向）。
+
+```css
+flex-direction: row | row-reverse | column | column-reverse;
+```
+
+#### flex-wrap
+
+flex-wrap属性定义，如果一条轴线排不下，如何换行。
+
+```css
+flex-wrap: nowrap | wrap | wrap-reverse;
+```
+
+#### flex-flow
+
+flex-flow属性是flex-direction属性和flex-wrap属性的简写形式，默认值为row nowrap。
+
+```css
+flex-flow: <flex-direction> <flex-wrap>;
+```
+
+
+
+#### justify-content
+
+- flex-start（默认值）：左对齐
+- flex-end：右对齐
+- center： 居中
+- space-between：两端对齐，项目之间的间隔都相等。
+- space-around：每个项目两侧的间隔相等。所以，项目之间的间隔比项目与边框的间隔大一倍。
+
+对齐居中
+
+>   justify-content: center;  左右居中
+>
+>   flex-wrap:wrap;   align-content: center;   上下居中
+>
+> 如果不换行：flex-wrap: nowrap;  align-items: center;  该行居中
+
+
+
+#### align-content
+
+`align-content` 属性用于修改 `flex-wrap` 属性的行为。
+
+特点：不换行flex-wrap: nowrap;，align-content无效。注意是不换行的情况，align-content无效；而不是一行的时候，无效。flex-wrap: wrap换行，且只有一行时，也是有效的。
+
+**行为：**每行的最大高度height值的子项，作为该行块的高度
+
+**默认值：**stretch，留下的空白间隙，被每个均匀得到。
+
+![image-20210524194226734](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524194226734.png)
+
+值：flex-start
+
+![image-20210524194931249](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524194931249.png)
+
+值：flex-end
+
+![image-20210524195038167](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524195038167.png)
+
+值：center
+
+![image-20210524195102760](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524195102760.png)
+
+
+
+**为什么每个元素在所在行都是顶部对齐呢？因为align-items的默认值flex-start**
+
+#### align-items
+
+align-items是指每行所占块，是如何对齐的。因为弹性盒布局模型的目的是提供一种更加有效的方式来对一个容器中的子元素进行排列、对齐和**分配空白空间**。
+
+如果不换行（只有一行），第一行下面的所有空白都是一个整块，即整个容器上下是一个整块，
+
+那么align-items:flex-end; 生效，排列在容器底部
+
+如果是多行，每行及其行的空白为一个块，align-items规定了该行在所在块的对齐方式。
+
+
+
+
+
+### 子项属性
+
+
+
+#### order
+
+order属性定义项目的排列顺序。数值越小，排列越靠前，默认为0。
+
+
+
+#### flex-grow: 0;
+
+每行中，设置每个元素分配剩余空间的比例。默认是0，都不分配剩余空间，如果子项有该值，该行的子项，将分配该行的剩余空间。——主轴剩余空间
+
+本来经过宽度计算，如下图所示：
+
+![image-20210524201502022](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524201502022.png)
+
+给每个子项添加：flex-grow: 1;让子项分配所在行的剩余空间
+
+结果如下：
+
+![image-20210524201552867](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524201552867.png)
+
+
+
+如果主轴为：flex-direction: column; 特性为display: block;
+
+![image-20210524202238434](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210524202238434.png)
+
+
+
+#### flex-shrink
+
+如果空间不够，指定哪些子项按比例缩小
+
+默认值：1，每行每项都要按相同大小失去。
+
+如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，前者不缩小。
+
+比如：
+
+(每行子项盒模型的width之和 - 容器盒模型的content宽)  /  每行子项盒模型的width之和  
+
+
+
+
+
+
+
+#### align-self
+
+align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。
+
+```css
+.item {
+  align-self: auto | flex-start | flex-end | center | baseline | stretch;
+}
+```
+
+
 
 #### 容器属性
 
@@ -70,7 +242,13 @@ align-content:center;
 
 ![image-20210521154651323](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521154651323.png)
 
+#### justify-content
+
 justify-content对齐内容的方式
+
+justify-content 用于设置或检索弹性盒子元素在主轴（横轴）方向上的对齐方式。
+
+**提示：**使用 align-content 属性对齐交叉轴上的各项（垂直）。
 
 默认值：flex-start左对齐、flex-end右对齐、center居中、
 
@@ -86,9 +264,21 @@ justify-content: space-evenly;
 
 ![image-20210521153232889](C:\Users\朱玉柱\AppData\Roaming\Typora\typora-user-images\image-20210521153232889.png)
 
+#### align-content（多行下生效）
 
+align-content 属性在弹性容器内的各项没有占用交叉轴上所有可用的空间时对齐容器内的各项（垂直）
 
+**默认值：stretch**
 
+**提示：**使用 justify-content 属性对齐主轴上的各项（水平）。
+
+**注意多行下生效：**容器内必须有多行的项目，该属性才能渲染出效果。
+
+**子项高度：**
+
+菜鸟教程：https://www.runoob.com/cssref/css3-pr-align-content.html
+
+测试效果地址：https://www.runoob.com/try/playit.php?f=playcss_align-content&preval=stretch
 
 ### 媒体查询
 
