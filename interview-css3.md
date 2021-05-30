@@ -14,7 +14,29 @@ CSS3 弹性盒（ Flexible Box 或 flexbox），是一种当页面需要适应�
 
 **要先阅读该文章：**https://www.runoob.com/w3cnote/flex-grammar.html
 
+https://www.cnblogs.com/echolun/p/11299460.html
+
+MDN：https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Flexible_Box_Layout
+
+示例：https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Flexible_Box_Layout/Typical_Use_Cases_of_Flexbox
+
 ### 容器属性
+
+#### display: inline-flex  行内元素也可以使用 Flex 布局。
+
+示例：让子项均等的分布
+
+```css
+.inline-wrap {
+    display: inline-flex;
+    width: 200px;
+    height: 100px;
+    border: 1px solid black;
+    justify-content: space-evenly;
+}
+```
+
+
 
 #### display: flex
 
@@ -168,7 +190,21 @@ order属性定义项目的排列顺序。数值越小，排列越靠前，默认
 
 
 
+#### flex-basic
 
+flex-basis属性定义了在分配多余空间之前，项目占据的主轴空间（main size）。浏览器根据这个属性，计算主轴是否有多余空间。它的默认值为auto，即项目的本来大小。
+
+它可以设为跟width或height属性一样的值（比如350px），则项目将占据固定空间。
+
+
+
+#### flex
+
+flex属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 auto。后两个属性可选。
+
+```css
+flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+```
 
 
 
@@ -725,6 +761,12 @@ clear: both;
 > 2）兄弟元素，比如一个有上边距，一个有下边距，这个时候会发生重叠，重叠的原则是取最大值，解决方法是给其中一个元素增加一个父元素，为这个父元素创建一个 BFC；
 > 3）空元素同时有 marging-top 和 marging-bottom 时，会取一个最大值作为边距，解决方法是为空元素创建一个 BFC。
 
+
+
+什么是BFC：https://blog.csdn.net/sinat_36422236/article/details/88763187
+
+
+
 ### CSS选择器有哪些？
 
 
@@ -767,6 +809,8 @@ fixed(固定定位)：所固定的参照对像是可视窗口。
 
 chrome中，使用collapse值和使用hidden没有区别。
 firefox，opera和IE，使用collapse值和使用display：none没有什么区别。
+
+
 
 ### display:none与visibility：hidden的区别？
 
@@ -832,11 +876,144 @@ https://zhuanlan.zhihu.com/p/124302579
 
 ### CSS优化，提高性能的方法有哪些？
 
-```text
-·加载性能：
+加载性能：
 ① CSS 压缩：将写好的CSS 进行打包压缩，可以减少很多的体积。
 ② CSS单一样式：当需要下边距和左边距的时候，很多时候选择：margin: top 0 bottom 0;
 但margin-top: top;margin-bottom: bottom;执行的效率更高。
-·选择器性能：
+选择器性能：
 ① 关键选择器。选择器的最后面的部分为关键选择器（即用来匹配目标元素的部分）。
+
+
+
+### display: table
+
+display:table=>相当于“table”标签；
+display:table-row=>相当于“tr”标签；
+display:table-cell=>相当于“td”标签；
+
+```css
+    <style>
+        .fa {
+            display: table;
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+        }
+        .row {
+            display: table-row;
+            width: 20px; /*无效，行的宽度为table的宽*/
+            height: 20px;
+            background-color: aqua;
+        }
+        .cell {
+            display: table-cell;
+            width: 30px;
+            height: 50px;
+            /** 宽高都生效*/
+        }
+    </style>
+
+    <div class="fa">
+        <div class="row">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="row"></div>
+        <div class="row"></div>
+        <div class="row"></div>
+        <div class="row"></div>
+    </div>
 ```
+
+注意：虽然display：table解决了避免使用表格的问题，但有几个需要注意的：
+
+（1）display: table时padding会失效
+
+（2）display: table-row时margin、padding同时失效
+
+（3）display: table-cell时margin会失效
+
+table标签好像在diff算法中经过三次计算（多次计算），比较浪费时间；
+
+### table标签
+
+**Tables的缺点**
+
+1、Table要比其它html标记占更多的字节。(延迟下载时间，占用服务器更多的流量资源。)
+
+2、Tablle会阻挡浏览器渲染引擎的渲染顺序。(会延迟页面的生成速度，让用户等待更久的时间。)
+
+3、Table里显示图片时需要你把单个、有逻辑性的图片切成多个图。(增加设计的复杂度，增加页面加载时间，增加HTTP会话数。)
+
+4、在某些浏览器中Table里的文字的拷贝会出现问题。(这会让用户不悦。)
+
+5、Table会影响其内部的某些布局属性的生效(比如<td>里的元素的height:100%)(这会限制你页面设计的自由性。)
+
+6、一旦学了CSS知识，你会发现使用table做页面布局会变得更麻烦。(先花时间学一些CSS知识，会省去你以后大量的时间。)
+
+7、table对对于页面布局来说，从语义上看是不正确的。(它描述的是表现，而不是内容。)
+
+8、table代码会让阅读者抓狂。(不但无法利用CSS，而且会你不知所云)
+
+9、table一旦设计完成就变成死的，很难通过CSS让它展现新的面貌。
+
+**Tables的优点**
+
+在某些场合，使用Table是100%的适合、恰当和正确。比如，用table做表格是完全正确的。
+
+
+
+### position定位
+
+static（默认）：按照正常文档流进行排列；
+relative（相对定位）：不脱离文档流，参考自身静态位置通过 top, bottom, left, right 定位；
+absolute(绝对定位)：参考距其最近一个不为static的父级元素通过top, bottom, left, right 定位；——参照元素的padding区进行定位的
+fixed(固定定位)：所固定的参照对像是可视窗口。
+
+### **请解释一下CSS3的flexbox（弹性盒布局模型）,以及适用场景？**
+
+**CSS 弹性盒子布局**是 CSS 的模块之一，定义了一种针对用户界面设计而优化的 CSS 盒子模型。在弹性布局模型中，弹性容器的子元素可以在任何方向上排布，也可以“弹性伸缩”其尺寸，既可以增加尺寸以填满未使用的空间，也可以收缩尺寸以避免父元素溢出。子元素的水平对齐和垂直对齐都能很方便的进行操控。通过嵌套这些框（水平框在垂直框内，或垂直框在水平框内）可以在两个维度上构建布局。
+
+该布局模型的目的是提供一种更加高效的方式来对容器中的条目进行布局、对齐和分配空间。在传统的布局方式中，block 布局是把块在垂直方向从上到下依次排列的；而 inline 布局则是在水平方向来排列。弹性盒布局并没有这样内在的方向限制，可以由开发人员自由操作。
+试用场景：弹性布局适合于移动前端开发，在Android和ios上也完美支持。
+
+
+
+### **常见的兼容性问题？为什么要初始化CSS样式**
+
+1. 不同浏览器的标签默认的margin和padding不一样。
+
+   *{margin:0;padding:0;}
+
+2. IE6双边距bug：块属性标签float后，又有横行的margin情况下，在IE6显示margin比设置的大。hack：display:inline;将其转化为行内属性。
+
+3. 渐进识别的方式，从总体中逐渐排除局部。首先，巧妙的使用“9”这一标记，将IE浏览器从所有情况中分离出来。接着，再次使用“+”将IE8和IE7、IE6分离开来，这样IE8已经独立识别。
+
+   ```
+   {
+   background-color:#f1ee18;/*所有识别*/
+   .background-color:#00deff\9; /*IE6、7、8识别*/
+   +background-color:#a200ff;/*IE6、7识别*/
+   _background-color:#1e0bd1;/*IE6识别*/
+   }
+   ```
+
+4. 设置较小高度标签（一般小于10px），在IE6，IE7中高度超出自己设置高度。hack：给超出高度的标签设置overflow:hidden;或者设置行高line-height 小于你设置的高度。
+
+5. IE下，可以使用获取常规属性的方法来获取自定义属性,也可以使用getAttribute()获取自定义属性；Firefox下，只能使用getAttribute()获取自定义属性。解决方法:统一通过getAttribute()获取自定义属性。
+
+6. Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示,可通过加入 CSS 属性 -webkit-text-size-adjust: none; 解决。
+
+7. 超链接访问过后hover样式就不出现了，被点击访问过的超链接样式不再具有hover和active了。解决方法是改变CSS属性的排列顺序:L-V-H-A ( love hate ): a:link {} a:visited {} a:hover {} a:active {}
+
+因为浏览器的兼容问题，不同浏览器对有些标签的默认值是不同的，如果没对CSS初始化往往会出现浏览器之间的页面显示差异。
+
+
+
+### vertical-align和text-align
+
+vertical-align元素文本的垂直对齐方式，默认：baseline，文本基线对齐
+
+vertical-align的使用：https://www.jianshu.com/p/ce7e4a997a2c
+
